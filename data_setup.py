@@ -3,7 +3,7 @@ import pandas as pd
 import os
 from sklearn.model_selection import train_test_split
 
-image_df = pd.read_csv('/n/fs/interp-scr/vramaswamy/NetDissect-Lite/dataset/broden1_224/index.csv')
+image_df = pd.read_csv('dataset/broden1_224/index.csv')
 
 for idx in image_df.index:
     if (image_df['image'][idx]).split('/')[0]!='ade20k':
