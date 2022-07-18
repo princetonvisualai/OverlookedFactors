@@ -1,0 +1,797 @@
+<html>
+  <head>
+    <title>Evaluating interpretability</title>
+    <!-- simpleamt depends on these libraries -->
+    <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/json3/3.3.2/json3.min.js'></script>
+    <!-- end of required libraries -->
+    <script src='//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js'></script>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js'></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- mozilla pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.min.js"></script>
+    <style>
+      #text-area {
+        margin: 10px 0;
+        font-size: 24pt;
+      }
+      #button-div {
+        margin-bottom: 10px;
+      }
+      #feedback-area {
+        margin: 10px 0;
+        font-size: 24pt;
+      }
+      #counter {
+        margin: 0 10px;
+        font-size: 20pt;
+        font-weight: bold;
+      }
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+      }
+      #scroll {
+        overflow-x: scroll;
+        white-space: nowrap;
+        width: 100%;
+      }
+      #scroll img {
+        max-height: 200px;
+        max-width: 200px;
+        width: auto;
+        height: auto;
+        vertical-align: top; /* this prevents vertical whitespace */
+      }
+      p {
+        font-size: 18px;
+      }
+      .basic {
+        height: 18px;
+        width: 18px;
+        vertical-align: top;
+      }
+      .btn-group button {
+        background-color: #3e3d3d; /* Green background */
+        border: 1px solid rgb(0, 0, 0); /* Green border */
+        color: white; /* White text */
+        padding: 10px 24px; /* Some padding */
+        cursor: pointer; /* Pointer/hand icon */
+        width: 50%; /* Set a width if needed */
+        display: block; /* Make the buttons appear below each other */
+      }
+      table, th, td {
+        border: none;
+        width=100%;
+        white-space:nowrap;
+        table-layout: auto;
+        padding: 10px;
+      }
+      table {
+        border-collapse: collapse;
+        border-spacing: 0;
+        padding: 20px;
+      }
+
+      p, ul, ol, dl, table {
+        margin-bottom: 1em;
+        padding: 20px;
+        margin: 0px;
+        padding: 0px;
+        border: 0px;
+        font-size: 100%;
+        font: inherit;
+        vertical-align: baseline;
+      }
+      .right {
+        transform: rotate(-45deg);
+        -webkit-transform: rotate(-45deg);
+      }
+      .left {
+        transform: rotate(135deg);
+        -webkit-transform: rotate(135deg);
+      }
+      .up {
+        transform: rotate(-135deg);
+        -webkit-transform: rotate(-135deg);
+      }
+      .down {
+        transform: rotate(45deg);
+        -webkit-transform: rotate(45deg);
+      }
+      img {
+        height: auto;
+        width: 100%;
+      }
+      iframe {
+        width: 100%;
+        height: 50%;
+      }
+      hr {
+        display: block;
+        height: 1px;
+        border: 0;
+        border-top: 1px solid #ccc;
+        margin: 1em 0;
+        padding: 0;
+      }
+      li {
+        font-size: 18px;
+      }
+      .row_special {
+        display: grid;
+        grid-auto-flow: column;
+        gap: 10%;
+      }
+
+      .col_special {
+        display: grid;
+        grid-auto-flow: row;
+        align-items: center;
+      }
+      .double {
+        zoom: 1.5;
+        transform: scale(2);
+        -ms-transform: scale(2);
+        -webkit-transform: scale(2);
+        -o-transform: scale(2);
+        -moz-transform: scale(2);
+        transform-origin: 0 0;
+        -ms-transform-origin: 0 0;
+        -webkit-transform-origin: 0 0;
+        -o-transform-origin: 0 0;
+        -moz-transform-origin: 0 0;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <!-- Demographics and background -->
+    {% include "hit_templates/setup.html" %}
+
+
+    <!-- Task preview -->
+    <div class='container-fluid' id="part_preview" style="display: none; ">
+
+      <div class='container-fluid'>
+        <h1>Task preview</h1>
+        <p>
+          We have a model that recognizes scenes in photos.
+          The model predicts <b>golf course</b> for some photos,
+          <b>park</b> for some other photos, <b>church</b> for some other photos,
+          <b>supermarket</b> for some other photos, and so on.
+        </p>
+        <br>
+        <p>
+          You will complete the following task for 10 photos in total.
+          <br>
+          Please try your best on the task. Your work is crucial to the success of our study!
+        <p>
+      </div>
+
+      <br><br>
+
+      <div class='container-fluid'>
+
+        <!-- Black box -->
+        <div class='col-xs-12' style="border:1px solid black;">
+
+          <div class='container-fluid'>
+            <h2>Task: Guess the model output</h2>
+            <p>
+              For each photo, the model predicts one of four scenes.
+              Your job is to guess the model output for the given photo on the left.
+              <br><br>
+              To help you understand how the model makes its predictions,
+              for each scene, we show example photos for which the model predicts that scene.
+              <br>
+              Scroll right to see all 10 example photos.
+              <br><br>
+              Based on these examples, <b>choose the scene you think the model will predict for the given photo</b>.
+              <br>
+              We show the photo 4 times so you can easily compare it to the examples on the right.
+            </p>
+          </div>
+
+          <br>
+
+          <div class='container-fluid'>
+
+            <div class='col-xs-3'>
+              <div class='container-fluid'>
+                <span style="font-size:18px; font-weight:bold">Photo</span>
+                <br>
+                <div id="scroll">
+                  <img src="https://drive.google.com/uc?export=view&id=1382niSyxsTNptAQNvq3spa94rKvwHkYP" width=100%>
+                </div>
+              </div>
+              <br><br>
+              <div class='container-fluid'>
+                <span style="font-size:18px; font-weight:bold">Photo (copy)</span>
+                <br>
+                <div id="scroll">
+                  <img src="https://drive.google.com/uc?export=view&id=1382niSyxsTNptAQNvq3spa94rKvwHkYP" width=100%>
+                </div>
+              </div>
+              <br><br>
+              <div class='container-fluid'>
+                <span style="font-size:18px; font-weight:bold">Photo (copy)</span>
+                <br>
+                <div id="scroll">
+                  <img src="https://drive.google.com/uc?export=view&id=1382niSyxsTNptAQNvq3spa94rKvwHkYP" width=100%>
+                </div>
+              </div>
+              <br><br>
+              <div class='container-fluid'>
+                <span style="font-size:18px; font-weight:bold">Photo (copy)</span>
+                <br>
+                <div id="scroll">
+                  <img src="https://drive.google.com/uc?export=view&id=1382niSyxsTNptAQNvq3spa94rKvwHkYP" width=100%>
+                </div>
+              </div>
+
+            </div>
+
+            <div class='col-xs-9'>
+              <div class='container-fluid'>
+                <span style="font-size:18px; font-weight:bold">Examples predicted Scene 1</span>
+                <br>
+                <div id="scroll">
+                  <img src="https://drive.google.com/uc?export=view&id=1_gVP2liKnCYRifVyVvkpqiUZzc_6vcKy">
+                  <img src="https://drive.google.com/uc?export=view&id=1_H12uJTWWb3r_fJjlzZdobkhxI0Bm_Ma">
+                  <img src="https://drive.google.com/uc?export=view&id=1-fNruGwmgMuNa1jK7fVqrTaSKCjl-uZG">
+                  <img src="https://drive.google.com/uc?export=view&id=12hAowWXlDbBVKZX_ppJcKa6bya9VnHrE">
+                  <img src="https://drive.google.com/uc?export=view&id=12yawI54YCda2JdQuSeaZBq4jk8tcpIzL">
+                  <img src="https://drive.google.com/uc?export=view&id=14bDh_VX9_awfxsVkS4LdaXva1an5xxVR">
+                  <img src="https://drive.google.com/uc?export=view&id=15tPBdPeixpPdBiWW1M6eXhpfbgkLjk81">
+                  <img src="https://drive.google.com/uc?export=view&id=16j8PclpiQePhv5eK1PBYt2qblGK_9lEa">
+                  <img src="https://drive.google.com/uc?export=view&id=18wGmBvaVC_m9GfEuW-HF_QEoEw-hr5PA">
+                  <img src="https://drive.google.com/uc?export=view&id=18Zu22mnsaowUUgfLnUqIEKHawIWpvh7K">
+                </div>
+              </div>
+
+              <br><br>
+
+              <div class='container-fluid'>
+                <span style="font-size:18px; font-weight:bold">Examples predicted Scene 2</span>
+                <br>
+                <div id="scroll">
+                  <img src="https://drive.google.com/uc?export=view&id=1_VyNt0lrC8CJEh1ouVGR6f9i-dp33zi6">
+                  <img src="https://drive.google.com/uc?export=view&id=1--q3uZnaG9xWX0q-b7RXEjNrKVCq0Bub">
+                  <img src="https://drive.google.com/uc?export=view&id=10I1RSJs6qoSvARFTxCpsmyp4njW-2yon">
+                  <img src="https://drive.google.com/uc?export=view&id=1151ZyNsBkXdKHOezy_0djiqj8hxO-IzY">
+                  <img src="https://drive.google.com/uc?export=view&id=119glfAv80yU1st_6ucW-iAqFcYOkBclR">
+                  <img src="https://drive.google.com/uc?export=view&id=123cgunBiWxxcAEZCqGa5zVpP6r8WbA7J">
+                  <img src="https://drive.google.com/uc?export=view&id=12EcOhdUuObumrUVdVsOtHI8VGoliVI12">
+                  <img src="https://drive.google.com/uc?export=view&id=16t9TDyUyAo-t3CVsBSGodRRPotgNzhfG">
+                  <img src="https://drive.google.com/uc?export=view&id=17TuTUpjGecPNwbkZASFr74QSSVlwatzV">
+                  <img src="https://drive.google.com/uc?export=view&id=19WmJcp9u7JpSf4lXHwlcEcej8XC414XE">
+                </div>
+              </div>
+
+              <br><br>
+
+              <div class='container-fluid'>
+                <span style="font-size:18px; font-weight:bold">Examples predicted Scene 3</span>
+                <br>
+                <div id="scroll">
+                  <img src="https://drive.google.com/uc?export=view&id=1JRLMxnWvuefB7BWAEF6Kt-v-eSnwaG7W">
+                  <img src="https://drive.google.com/uc?export=view&id=17I1uLDbYsMXXkFkUrPgzUj6UtT0f6a4l">
+                  <img src="https://drive.google.com/uc?export=view&id=1jRrmJqiI_LKaKipKv7B0jJcFwR0q-jD0">
+                  <img src="https://drive.google.com/uc?export=view&id=1zxPY_dLZgiXNjFEHqVjf0CwIQsJNsy1N">
+                  <img src="https://drive.google.com/uc?export=view&id=1b8okr5S_yX0Wg7TQfa3milZIL7vTD-MN">
+                  <img src="https://drive.google.com/uc?export=view&id=1DTZln3R2HUGcQ_n2RMVgyP1g7cg5VOrY">
+                  <img src="https://drive.google.com/uc?export=view&id=1eVHWd_RNUMAiyWsmBzzBysjXMh8tXiMT">
+                  <img src="https://drive.google.com/uc?export=view&id=1h7--Q_OWCqQSdSj1QkXx0Q139DpT-tl0">
+                  <img src="https://drive.google.com/uc?export=view&id=1Hg-q0UIgUad-sMM19PTeVedCiCbARtrB">
+                  <img src="https://drive.google.com/uc?export=view&id=1Hytf5QsXLo8ukGcFMCu1bSqsl9u7SsEa">
+                </div>
+              </div>
+
+              <br><br>
+
+              <div class='container-fluid'>
+                <span style="font-size:18px; font-weight:bold">Examples predicted Scene 4</span>
+                <br>
+                <div id="scroll">
+                  <img src="https://drive.google.com/uc?export=view&id=1_hTm-MhZjd4HzxaW-SL9dTSC4UVSFESw">
+                  <img src="https://drive.google.com/uc?export=view&id=1-Ea51aVfCxZP0pwQXPAy5JbFaUo7Zrxw">
+                  <img src="https://drive.google.com/uc?export=view&id=1-PUv3029G87pjeQnTxQqM3ghQ654RR81">
+                  <img src="https://drive.google.com/uc?export=view&id=11a1w1vo-tMRfD1hmxDL2U-mtnl0Kj50n">
+                  <img src="https://drive.google.com/uc?export=view&id=1-XUpht-R8iPlhMo7bOYJwSGq1mylsPAm">
+                  <img src="https://drive.google.com/uc?export=view&id=10l1y2dPxlwfL2fsa6MJ61gMkvU6bss0X">
+                  <img src="https://drive.google.com/uc?export=view&id=119popSGSNcnrEoBw6hTsJGBqv1fqG7-V">
+                  <img src="https://drive.google.com/uc?export=view&id=12_m1Y3RH5CmsbOeX_Gn65ksaImSLoA2Y">
+                  <img src="https://drive.google.com/uc?export=view&id=13gcB8QVukIEy3dfqiVxIz7BzMneV04Vl">
+                  <img src="https://drive.google.com/uc?export=view&id=13sWUm3rh51sjPqP2KcAczRUU1u6853M_">
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <br>
+
+          <div class='container-fluid'>
+            <h3>Q. Which scene do you think the model predicts?</h3>
+            <form action="" method="post">
+              <input type="radio" style="height:18px; width:18px; vertical-align:top;" name="preview" value="1"/>
+              <span style="font-size:18px; white-space:pre">Scene 1  </span>
+              <input type="radio" style="height:18px; width:18px; vertical-align:top;" name="preview" value="2"/>
+              <span style="font-size:18px; white-space:pre">Scene 2  </span>
+              <input type="radio" style="height:18px; width:18px; vertical-align:top;" name="preview" value="3"/>
+              <span style="font-size:18px; white-space:pre">Scene 3  </span>
+              <input type="radio" style="height:18px; width:18px; vertical-align:top;" name="preview" value="4"/>
+              <span style="font-size:18px; white-space:pre">Scene 4  </span>
+            </form>
+          </div>
+
+          <br><br>
+
+        </div> <!-- End of black box -->
+
+      </div>
+
+      <br>
+
+      <div class='container-fluid'>
+        <br>
+        <h3>Please self-rate your level of understanding of how the model makes its predictions</h3>
+        <form action="" method="post">
+          <input type="radio" style="height:18px; width:18px; vertical-align:top" name="subjective" value="1" /> <span style="font-size:18px; white-space:pre">Very Poor  </span>
+          <input type="radio" style="height:18px; width:18px; vertical-align:top" name="subjective" value="2" /> <span style="font-size:18px; white-space:pre">Poor  </span>
+          <input type="radio" style="height:18px; width:18px; vertical-align:top" name="subjective" value="3" /> <span style="font-size:18px; white-space:pre">Fair  </span>
+          <input type="radio" style="height:18px; width:18px; vertical-align:top" name="subjective" value="4" /> <span style="font-size:18px; white-space:pre">Good  </span>
+          <input type="radio" style="height:18px; width:18px; vertical-align:top" name="subjective" value="5" /> <span style="font-size:18px; white-space:pre">Very Good  </span>
+        </form>
+      </div>
+
+      <br><br><br>
+
+      <div class='col-xs-12' id='button-div'>
+        <button class='btn btn-lg btn-primary' id="next_preview2task" disabled onclick="pg_preview2task()">Next Page</button>
+        <br><br>
+      </div>
+
+      <br><br>
+
+    </div> <!-- End of part_preview -->
+
+
+    <!-- Main task -->
+    {% include "hit_templates/task_example_sgroup1.html" %}
+
+    {% include "hit_templates/task_example_sgroup2.html" %}
+
+    <!-- Post-task evaluation -->
+    <div class='container-fluid' id='part_post' style="display: none;">
+      <div class='container-fluid'>
+        <h1>Post-task evaluation</h1>
+        <br>
+        <h3>Q. How well do you understand how the model makes its predictions?</h3>
+        <form action="" method="post">
+          <input type="radio" style="height:18px; width:18px; vertical-align:top;" name="subjective2" value="1" /> <span style="font-size:18px">Very Poor</span>
+          <input type="radio" style="height:18px; width:18px; vertical-align:top;" name="subjective2" value="2" /> <span style="font-size:18px">Poor</span>
+          <input type="radio" style="height:18px; width:18px; vertical-align:top;" name="subjective2" value="3" /> <span style="font-size:18px">Fair</span>
+          <input type="radio" style="height:18px; width:18px; vertical-align:top;" name="subjective2" value="4" /> <span style="font-size:18px">Good</span>
+          <input type="radio" style="height:18px; width:18px; vertical-align:top;" name="subjective2" value="5" /> <span style="font-size:18px">Very Good</span>
+        </form>
+      </div>
+
+      <br><br><br>
+
+      <div class='col-xs-12' id='button-div'>
+        <button class='btn btn-lg btn-primary' id="next_post2perf"  onclick="pg_post2perf()">Next Page</button>
+      </div>
+    </div>
+
+
+    <!-- Your performance -->
+    <div class='container-fluid' id='part_perf' style="display: none;">
+      <div class='container-fluid'>
+        <h1>Your performance</h1>
+        <br>
+        <p>
+          You correctly guessed the scene the model predicted for
+          <span id="correctcount"></span> out of <span id="correcttotal"></span> photos for Scenes A/B/C/D, and
+          <span id="correctcount2"></span> out of <span id="correcttotal2"></span> photos Scenes W/X/Y/Z.
+        </p>
+        <br>
+        <h3>Q. How well do you understand how the model makes its predictions?</h3>
+        <form action="" method="post">
+          <input type="radio" style="height:18px; width:18px; vertical-align:top;" name="subjective3" value="1" /> <span style="font-size:18px">Very Poor</span>
+          <input type="radio" style="height:18px; width:18px; vertical-align:top;" name="subjective3" value="2" /> <span style="font-size:18px">Poor</span>
+          <input type="radio" style="height:18px; width:18px; vertical-align:top;" name="subjective3" value="3" /> <span style="font-size:18px">Fair</span>
+          <input type="radio" style="height:18px; width:18px; vertical-align:top;" name="subjective3" value="4" /> <span style="font-size:18px">Good</span>
+          <input type="radio" style="height:18px; width:18px; vertical-align:top;" name="subjective3" value="5" /> <span style="font-size:18px">Very Good</span>
+        </form>
+      </div>
+      <br><br><br>
+      <div class='col-xs-12' id='button-div'>
+        <button class='btn btn-lg btn-primary' id="next_perf2feedback"  onclick="pg_perf2feedback()">Next Page</button>
+      </div>
+    </div>
+
+
+    <!-- Feedback -->
+    <div class='container-fluid' id='part_feedback' style="display: none;">
+      <div class='col-xs-12'>
+        <h3>
+          Thank you for your participation!
+          <br><br>
+          Let us know if you have any feedback about this study.
+        </h3>
+        <textarea id='feedback-area' name='feedback-area' class='form-control tb-margin'></textarea>
+      </div>
+
+      <!-- Submit -->
+      {% include "hit_templates/simpleamt.html" %}
+    </div>
+
+
+    <!-- Beginning of script -->
+    <script>
+      function movepage(div_prev, div_next) {
+        if (div_prev.style.display !== 'none') {
+          div_prev.style.display = 'none';
+          div_next.style.display = 'block';
+        }
+        else {
+          div_prev.style.display = 'block';
+          div_next.style.display = 'none';
+        }
+        // Jump to the top of the page
+        window.scroll({ top: 0, left: 0, behavior: 'smooth' });
+      }
+
+      // Create timing object
+      timing = {};
+      timing['start'] = Date.now();
+      timing['nextphoto'] = [];
+      timing['nextphoto2'] = [];
+
+      // Move between pages
+      function pg_consent2demographics() {
+        timing['pg_consent2demographics'] = Date.now();
+        var div_prev = document.getElementById('part_consent');
+        var div_next = document.getElementById('part_demographics');
+        movepage(div_prev, div_next);
+      }
+      function pg_demographics2intro() {
+        timing['pg_demographics2intro'] = Date.now();
+        var div_prev = document.getElementById('part_demographics');
+        var div_next = document.getElementById('part_preview');
+        movepage(div_prev, div_next);
+      }
+      function pg_preview2task() {
+        timing['pg_preview2task'] = Date.now();
+        var div_prev = document.getElementById('part_preview');
+        var div_next = document.getElementById('part_task');
+        movepage(div_prev, div_next);
+      }
+      function pg_task2task2() {
+        timing['pg_task2task2'] = Date.now();
+        var div_prev = document.getElementById('part_task');
+        var div_next = document.getElementById('part_task2');
+        movepage(div_prev, div_next);
+      }
+      function pg_task22post() {
+        timing['pg_task22post'] = Date.now();
+        var div_prev = document.getElementById('part_task2');
+        var div_next = document.getElementById('part_post');
+        movepage(div_prev, div_next);
+      }
+      function pg_post2perf() {
+        timing['pg_post2perf'] = Date.now();
+        var div_prev = document.getElementById('part_post');
+        var div_next = document.getElementById('part_perf');
+        movepage(div_prev, div_next);
+      }
+      function pg_perf2feedback() {
+        timing['pg_perf2feedback'] = Date.now();
+        var div_prev = document.getElementById('part_perf');
+        var div_next = document.getElementById('part_feedback');
+        movepage(div_prev, div_next);
+      }
+
+      // Define some default input.
+      var DEFAULT_INPUT = {"input_id": [0],
+        "input_image": ["https://drive.google.com/uc?export=view&id=1ITrx01DEnB3_57O0I5yBvu1jqy-1FPxC",
+        "https://drive.google.com/uc?export=view&id=1hrQ0D3ZYBfrp0f-hIhVnC4Zknn1nCYLB",
+        "https://drive.google.com/uc?export=view&id=1LJy0M_VbOEqFR2r6-KaPtQ5WLSigpqXh",
+        "https://drive.google.com/uc?export=view&id=1o1-R2UwYXR-zn2ZFDEW6s-4UYJc_8P68",
+        "https://drive.google.com/uc?export=view&id=1KvIjd_H0kR6MUCcNqI6DBi5sIo95JxS_"],
+        "input_imagename": ["ADE_train_00016439.jpg",
+        "ADE_train_00016961.jpg",
+        "ADE_train_00016367.jpg",
+        "ADE_train_00017034.jpg",
+        "ADE_train_00018406.jpg"],
+        "predicted": [3, 4, 1, 2, 2],
+        "input_image2": ["https://drive.google.com/uc?export=view&id=1t8czqitJwFUppov8paT6f06tRXERIrqp",
+        "https://drive.google.com/uc?export=view&id=1ctJpH97-_nNAGpfeB2h38M6RUK8fgAEm",
+        "https://drive.google.com/uc?export=view&id=1IXNSwxmDkV0GGRRRNBrgODtoQx_FKFZl",
+        "https://drive.google.com/uc?export=view&id=1MQhw8LRagKwvGqZ2IKRhHzy13B0vRGGb",
+        "https://drive.google.com/uc?export=view&id=1gfw0VHUhbQUoxNaIAkFsRkDAD_NEoArb"],
+        "input_imagename2": ["ADE_train_00003787.jpg",
+        "ADE_val_00000161.jpg",
+        "ADE_train_00006850.jpg",
+        "ADE_train_00011102.jpg",
+        "ADE_train_00000233.jpg"],
+        "predicted2": [1, 1, 2, 4, 1]
+      }
+
+
+      // Variables to record answers
+      var feedback = [];
+
+      // Some variables to track state of the HIT.
+      var enabled = false;
+      var longinput = null;
+
+      var localanswers = []; var idx = 0;
+      var correctacclist = []; var correcttotal = [];
+      document.getElementById("correctcount").innerHTML = 5;
+      document.getElementById("correcttotal").innerHTML = 5;
+
+      var localanswers2 = []; var idx2 = 0;
+      var correctacclist2 = []; var correcttotal2 = [];
+      document.getElementById("correctcount2").innerHTML = 5;
+      document.getElementById("correcttotal2").innerHTML = 5;
+
+      // Record input and accuracy
+      function record() {
+        timing['nextphoto'][idx] = Date.now();
+
+        // Record selections
+        localanswers[idx] = {
+          'predictedclass': parseInt($('input[name=predictedclass]:checked').val(), 10),
+        };
+
+        // Calculate accuracy
+        for (var i = 0; i < input_image.length; ++i) {
+          if (localanswers[i]['predictedclass'] == predicted[i]) { correctacclist[i] = 1; }
+          else { correctacclist[i] = 0; }
+          correcttotal[i] = 1;
+        }
+        correctcount = correctacclist.reduce(function(a, b) { return Number(a) + Number(b); }, 0);
+        correcttotal = correcttotal.reduce(function(a, b) { return Number(a) + Number(b); }, 0);
+        document.getElementById("correctcount").innerHTML = correctcount;
+        document.getElementById("correcttotal").innerHTML = correcttotal;
+
+      } // End of record()
+
+      function record2() {
+        timing['nextphoto2'][idx2] = Date.now();
+
+        // Record selections
+        localanswers2[idx2] = {
+          'predictedclass': parseInt($('input[name=predictedclass2]:checked').val(), 10),
+        };
+
+        // Calculate accuracy
+        for (var i = 0; i < input_image2.length; ++i) {
+          if (localanswers2[i]['predictedclass'] == predicted2[i]) { correctacclist2[i] = 1; }
+          else { correctacclist2[i] = 0; }
+          correcttotal2[i] = 1;
+        }
+        correctcount2 = correctacclist2.reduce(function(a, b) { return Number(a) + Number(b); }, 0);
+        correcttotal2 = correcttotal2.reduce(function(a, b) { return Number(a) + Number(b); }, 0);
+        document.getElementById("correctcount2").innerHTML = correctcount2;
+        document.getElementById("correcttotal2").innerHTML = correcttotal2;
+
+      } // End of record2()
+
+
+      $(function() {
+
+        // Allow next page buttons
+        $("input[name='consent']").change(function(){next_consent2demographics.disabled = false;});
+        $("input[name='ml_exp']").change(function(){next_demographics2intro.disabled = false;});
+        $("input[name='subjective']").change(function(){next_preview2task.disabled = false;});
+        $("input[name='subjective2']").change(function(){next_post2perf.disabled = false;});
+        $("input[name='subjective3']").change(function(){next_perf2choice.disabled = false;});
+
+        // Allow next page button only when the task is complete
+        $("input[name='predictedclass']").change(function(){
+          if ($("input[name='predictedclass']").is(":checked")) {
+            if (idx != input_image.length-1) {next_btn.disabled = false;}
+            if (idx == input_image.length-1) {next_task2task2.disabled = false;}
+         }
+        });
+        $("input[name='predictedclass2']").change(function(){
+          if ($("input[name='predictedclass2']").is(":checked")) {
+            if (idx2 != input_image2.length-1) {next_btn2.disabled = false;}
+            if (idx2 == input_image2.length-1) {next_task22post.disabled = false;}
+         }
+        });
+
+        function main() {
+          // If this is a HIT on AMT, then replace the default input with the real input
+          longinput = simpleamt.getInput(DEFAULT_INPUT);
+
+          // Load input
+          input_id = longinput['input_id'][0]
+          input_image = longinput['input_image']
+          predicted = longinput['predicted']
+          input_image2 = longinput['input_image2']
+          predicted2 = longinput['predicted2']
+
+          // Enable the UI if the HIT is not in preview mode
+          if (!simpleamt.isPreview()) {
+            enable_hit();
+          }
+
+          // Set up feedback
+          _.each(input, function() { feedback.push(''); });
+
+          // Preload all images
+          _.each(input_image, function(img_url) {
+            var img = new Image();
+            img.onload = function() { console.log('loaded image from ' + img_url); };
+            img.src = img_url;
+          });
+
+          // Render page
+          render();
+        }
+
+        // Render page with current index input
+        function render() {
+
+          // Jump to the top of the page
+          window.scroll({ top: 0, left: 0, behavior: 'smooth' });
+
+          // Set up the image
+          $('#testimage1-container').empty();
+          $('<img>').attr({
+            'src':input_image[idx], 'height':'20%', 'align':'center'
+          }).appendTo($('#testimage1-container'));
+          $('#testimage2-container').empty();
+          $('<img>').attr({
+            'src':input_image[idx], 'height':'20%', 'align':'center'
+          }).appendTo($('#testimage2-container'));
+          $('#testimage3-container').empty();
+          $('<img>').attr({
+            'src':input_image[idx], 'height':'20%', 'align':'center'
+          }).appendTo($('#testimage3-container'));
+          $('#testimage4-container').empty();
+          $('<img>').attr({
+            'src':input_image[idx], 'height':'20%', 'align':'center'
+          }).appendTo($('#testimage4-container'));
+
+          $('#testimage5-container').empty();
+          $('<img>').attr({
+            'src':input_image2[idx2], 'height':'20%', 'align':'center'
+          }).appendTo($('#testimage5-container'));
+          $('#testimage6-container').empty();
+          $('<img>').attr({
+            'src':input_image2[idx2], 'height':'20%', 'align':'center'
+          }).appendTo($('#testimage6-container'));
+          $('#testimage7-container').empty();
+          $('<img>').attr({
+            'src':input_image2[idx2], 'height':'20%', 'align':'center'
+          }).appendTo($('#testimage7-container'));
+          $('#testimage8-container').empty();
+          $('<img>').attr({
+            'src':input_image2[idx2], 'height':'20%', 'align':'center'
+          }).appendTo($('#testimage8-container'));
+
+          // Set up the text area
+          $('#feedback-area').val(feedback);
+
+          // Refresh the counter
+          $('.counter-top').text(idx + 1);
+          $('.counter-bottom').text(input_image.length + input_image2.length);
+          $('.counter-top2').text(idx2 + 1 + input_image.length);
+          $('.counter-bottom2').text(input_image.length + input_image2.length);
+          // $('.counter-top').text(idx + 1);
+          // $('.counter-bottom').text(input_image.length);
+          // $('.counter-top2').text(idx2 + 1);
+          // $('.counter-bottom2').text(input_image2.length);
+
+          // If the UI is enabled, enable or disable the buttons depending on the index.
+          if (enabled) {
+            var next_task22post_btn = $('#next_task22post');
+            next_task22post_btn.prop('disabled', true);
+          }
+
+        } // End of render()
+
+        // Save the input and update the index
+        function set_idx(new_idx) {
+          if (new_idx < 0 || new_idx >= input_image.length) return;
+          idx = new_idx;
+          render();
+        }
+        function set_idx2(new_idx) {
+          if (new_idx < 0 || new_idx >= input_image2.length) return;
+          idx2 = new_idx;
+          render();
+        }
+
+        // Enable the UI
+        function enable_hit() {
+          enabled = true;
+
+          // Enable components
+          $('#next_btn').click(function() {
+            set_idx(idx + 1);
+            $('input[name=predictedclass]').prop('checked',false);
+            next_btn.disabled = true;
+          });
+          $('#next_btn2').click(function() {
+            set_idx2(idx2 + 1);
+            $('input[name=predictedclass2]').prop('checked',false);
+            next_btn2.disabled = true;
+          });
+
+          $('#feedback-area').prop('disabled', false);
+          $('#submit-btn').prop('disabled', false);
+
+          // Set up submit handler.
+          simpleamt.setupSubmit();
+          $('#submit-btn').click(function() {
+
+            timing['submit'] = Date.now();
+
+            // Choice answers
+            ml_exp = $('input[name=ml_exp]:checked').val();
+            subjective = $('input[name=subjective]:checked').val();
+            subjective2 = $('input[name=subjective2]:checked').val();
+            subjective3 = $('input[name=subjective3]:checked').val();
+
+            // Performance
+            correctcount = document.getElementById("correctcount").innerHTML;
+            correctcount2 = document.getElementById("correctcount2").innerHTML;
+
+            // Demographics
+            gender = []; race = [];
+            if ($('input[name=gender]:checked').length > 0) { gender.push($('input[name=gender]:checked').val()); }
+            else { gender.push(""); };
+            if ($('input[name=race]:checked').length > 0) { race.push($('input[name=race]:checked').val()); }
+            else {race.push("");};
+            if (gender.length === 0) {gender = [''];};
+            if (race.length === 0) {race = [''];};
+            gender_written = [];
+            gender_written.push($('#genderdescribe').val());
+
+            // Feedback
+            feedback = [];
+            feedback.push($('#feedback-area').val());
+
+            // Return output
+            var output = _.map(_.zip(ml_exp,
+              gender, gender_written, race,
+              subjective, subjective2, subjective3,
+              correctcount, correctcount2,
+              feedback), function(x) {
+              return {'ml_exp': x[0],
+              'gender': x[1], 'gender_written': x[2], 'race': x[3],
+              'subjective': x[4], 'subjective2': x[5], 'subjective3': x[6],
+              'correctcount': x[7], 'correctcount2': x[8],
+              'feedback': x[9]};
+            });
+            output.push({"input": input_id});
+            output.push({"individual_answers": localanswers});
+            output.push({'correctacclist': correctacclist});
+            output.push({"individual_answers2": localanswers2});
+            output.push({'correctacclist2': correctacclist2});
+            output.push({"timing": timing});
+
+            simpleamt.setOutput(output);
+
+          }); // End of submit-btn()
+
+        } // End of enable_hit()
+
+        main();
+
+      }); // End of function()
+
+
+    </script>
+  </body>
+</html>

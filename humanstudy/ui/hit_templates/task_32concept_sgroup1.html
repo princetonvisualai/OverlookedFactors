@@ -1,0 +1,727 @@
+<html>
+  <head>
+    <title>Evaluating interpretability</title>
+    <!-- simpleamt depends on these libraries -->
+    <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/json3/3.3.2/json3.min.js'></script>
+    <!-- end of required libraries -->
+    <script src='//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js'></script>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js'></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      #text-area {
+        margin: 10px 0;
+        font-size: 24pt;
+      }
+      #button-div {
+        margin-bottom: 10px;
+      }
+      #counter {
+        margin: 0 10px;
+        font-size: 20pt;
+        font-weight: bold;
+      }
+      p {
+        font-size: 18px;
+      }
+      hr {
+        display: block;
+        height: 1px;
+        border: 0;
+        border-top: 1px solid #ccc;
+        margin: 1em 0;
+        padding: 0;
+      }
+      li {
+        font-size: 18px;
+      }
+      .row_special {
+        display: grid;
+        grid-auto-flow: column;
+        gap: 10%;
+      }
+
+      .col_special {
+        display: grid;
+        grid-auto-flow: row;
+        align-items: center;
+      }
+      .double {
+        zoom: 1.5;
+        transform: scale(2);
+        -ms-transform: scale(2);
+        -webkit-transform: scale(2);
+        -o-transform: scale(2);
+        -moz-transform: scale(2);
+        transform-origin: 0 0;
+        -ms-transform-origin: 0 0;
+        -webkit-transform-origin: 0 0;
+        -o-transform-origin: 0 0;
+        -moz-transform-origin: 0 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class='container-fluid' id='part_task' style="display: none;">
+
+      <div class='container-fluid'>
+        <h1>Task: Recognize concepts and guess the model output</h1>
+        <p>
+          We have a model that predicts one of four scenes (A, B, C, D) for a photo.
+          <br>
+          We also have explanations for how the model decides to predict each scene.
+          <br><br>
+          In this task, we ask you to use these explanations to guess which scene the model predicts.
+          <br>
+          You will do so by first <b>checking all concepts you think are present in the photo</b>,
+          <br>
+          then <b>choosing the scene you think the model predicts</b> based on the explanation scores.
+          <br><br>
+          Note that the explanation scores changes based on your concept selections, not the model's.
+          <br>
+          We don't know what the model will predict for this photo, we're trying to guess that!
+        </p>
+      </div>
+
+      <hr>
+
+      <div class='container-fluid'>
+
+        <!-- Photo -->
+        <div class='col-xs-3'>
+          <div id='testimage-container'></div>
+        </div>
+
+        <!-- Concepts -->
+        <div id='g1_checkboxes' class='col-xs-3'>
+          <span style="font-size:18px; font-weight:bold">Concepts</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_wall" value="g1_wall" />
+          <span class="mono">wall</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_sky" value="g1_sky" />
+          <span class="mono">sky</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_floor" value="g1_floor" />
+          <span class="mono">floor</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_tree" value="g1_tree" />
+          <span class="mono">tree</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_person" value="g1_person" />
+          <span class="mono">person</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_road" value="g1_road" />
+          <span class="mono">road</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_grass" value="g1_grass" />
+          <span class="mono">grass</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_plant" value="g1_plant" />
+          <span class="mono">plant</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_car" value="g1_car" />
+          <span class="mono">car</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_sidewalk" value="g1_sidewalk" />
+          <span class="mono">sidewalk</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_mountain" value="g1_mountain" />
+          <span class="mono">mountain</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_streetlight" value="g1_streetlight" />
+          <span class="mono">streetlight</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_box" value="g1_box" />
+          <span class="mono">box</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_earth" value="g1_earth" />
+          <span class="mono">earth</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_rock" value="g1_rock" />
+          <span class="mono">rock</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_pot" value="g1_pot" />
+          <span class="mono">pot</span>
+        </div>
+
+        <div id='g1_checkboxes' class='col-xs-3'>
+          <span style="font-size:18px; font-weight:bold">(continued)</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_flowerpot" value="g1_flowerpot" />
+          <span class="mono">flowerpot</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_stairs" value="g1_stairs" />
+          <span class="mono">stairs</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_bag" value="g1_bag" />
+          <span class="mono">bag</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_ashcan" value="g1_ashcan" />
+          <span class="mono">ashcan</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_spotlight" value="g1_spotlight" />
+          <span class="mono">spotlight</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_stairway" value="g1_stairway" />
+          <span class="mono">stairway</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_van" value="g1_van" />
+          <span class="mono">van</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_truck" value="g1_truck" />
+          <span class="mono">truck</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_awning" value="g1_awning" />
+          <span class="mono">awning</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_trafficlight" value="g1_trafficlight" />
+          <span class="mono">traffic light</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_flag" value="g1_flag" />
+          <span class="mono">flag</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_bucket" value="g1_bucket" />
+          <span class="mono">bucket</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_pedestal" value="g1_pedestal" />
+          <span class="mono">pedestal</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_tradename" value="g1_tradename" />
+          <span class="mono">trade name</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_palm" value="g1_palm" />
+          <span class="mono">palm</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_skyscraper" value="g1_skyscraper" />
+          <span class="mono">skyscraper</span>
+        </div>
+
+      </div>
+
+      <br><br>
+
+      <div class='container-fluid'>
+
+        <!-- Explanation 1 -->
+        <div class='col-xs-3'>
+          <span style="font-size:18px; font-weight:bold">Explanation for Scene A</span>
+          <br>
+          <span class="mono-bold">= </span>
+          <span class="g1_finalscore1" style="font-size:18px; color:blue; font-weight:bold; font-family:monospace; white-space:pre"></span>
+          <br>
+          <span class="mono-bold-no">= </span>
+          <span class="mono-green">+ 1.15 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_flag" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (flag)</span>
+          <br>
+          <span class="mono-green">  + 1.12 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_skyscraper" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (skyscraper)</span>
+          <br>
+          <span class="mono-red">  - 0.99 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_awning" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (awning)</span>
+          <br>
+          <span class="mono-green">  + 0.86 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_earth" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (earth)</span>
+          <br>
+          <span class="mono-green">  + 0.83 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_floor" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (floor)</span>
+          <br>
+          <span class="mono-green">  + 0.80 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_car" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (car)</span>
+          <br>
+          <span class="mono-red">  - 0.76 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_pot" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (pot)</span>
+          <br>
+          <span class="mono-green">  + 0.63 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_tradename" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (trade name)</span>
+          <br>
+          <span class="mono-green">  + 0.57 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_trafficlight" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (traffic light)</span>
+          <br>
+          <span class="mono-green">  + 0.55 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_wall" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (wall)</span>
+          <br>
+          <span class="mono-green">  + 0.55 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_streetlight" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (streetlight)</span>
+          <br>
+          <span class="mono-red">  - 0.53 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_sidewalk" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (sidewalk)</span>
+          <br>
+          <span class="mono-green">  + 0.51 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_stairs" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (stairs)</span>
+          <br>
+          <span class="mono-green">  + 0.50 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_sky" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (sky)</span>
+          <br>
+          <span class="mono-green">  + 0.43 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_truck" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (truck)</span>
+          <br>
+          <span class="mono-green">  + 0.40 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_pedestal" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (pedestal)</span>
+          <br>
+          <span class="mono-red">  - 0.39 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_ashcan" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (ashcan)</span>
+          <br>
+          <span class="mono-green">  + 0.37 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_grass" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (grass)</span>
+          <br>
+          <span class="mono-green">  + 0.32 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_road" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (road)</span>
+          <br>
+          <span class="mono-green">  + 0.32 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_flowerpot" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (flowerpot)</span>
+          <br>
+          <span class="mono-green">  + 0.32 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_tree" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (tree)</span>
+          <br>
+          <span class="mono-green">  + 0.26 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_bag" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (bag)</span>
+          <br>
+          <span class="mono-red">  - 0.26 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_van" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (van)</span>
+          <br>
+          <span class="mono-green">  + 0.26 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_palm" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (palm)</span>
+          <br>
+          <span class="mono-green">  + 0.24 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_bucket" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (bucket)</span>
+          <br>
+          <span class="mono-red">  - 0.19 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_person" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (person)</span>
+          <br>
+          <span class="mono-red">  - 0.04 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_spotlight" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (spotlight)</span>
+          <br>
+          <span class="mono-green">  + 0.00</span>
+        </div>
+
+        <!-- Explanation 2 -->
+        <div class='col-xs-3'>
+          <span style="font-size:18px; font-weight:bold">Explanation for Scene B</span>
+          <br>
+          <span class="mono-bold">= </span>
+          <span class="g1_finalscore2" style="font-size:18px; color:blue; font-weight:bold; font-family:monospace; white-space:pre"></span>
+          <br>
+          <span class="mono-bold-no">= </span>
+          <span class="mono-red">- 3.74 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_skyscraper" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (skyscraper)</span>
+          <br>
+          <span class="mono-green">  + 2.13 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_stairway" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (stairway)</span>
+          <br>
+          <span class="mono-green">  + 1.73 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_grass" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (grass)</span>
+          <br>
+          <span class="mono-red">  - 1.37 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_sky" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (sky)</span>
+          <br>
+          <span class="mono-green">  + 1.26 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_palm" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (palm)</span>
+          <br>
+          <span class="mono-red">  - 0.90 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_truck" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (truck)</span>
+          <br>
+          <span class="mono-green">  + 0.89 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_rock" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (rock)</span>
+          <br>
+          <span class="mono-green">  + 0.89 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_plant" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (plant)</span>
+          <br>
+          <span class="mono-red">  - 0.84 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_box" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (box)</span>
+          <br>
+          <span class="mono-red">  - 0.79 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_car" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (car)</span>
+          <br>
+          <span class="mono-red">  - 0.48 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_flowerpot" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (flowerpot)</span>
+          <br>
+          <span class="mono-green">  + 0.44 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_flag" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (flag)</span>
+          <br>
+          <span class="mono-green">  + 0.40 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_trafficlight" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (traffic light)</span>
+          <br>
+          <span class="mono-red">  - 0.34 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_streetlight" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (streetlight)</span>
+          <br>
+          <span class="mono-green">  + 0.30 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_road" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (road)</span>
+          <br>
+          <span class="mono-red">  - 0.28 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_van" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (van)</span>
+          <br>
+          <span class="mono-red">  - 0.26 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_mountain" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (mountain)</span>
+          <br>
+          <span class="mono-green">  + 0.20 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_sidewalk" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (sidewalk)</span>
+          <br>
+          <span class="mono-red">  - 0.19 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_spotlight" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (spotlight)</span>
+          <br>
+          <span class="mono-red">  - 0.16 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_awning" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (awning)</span>
+          <br>
+          <span class="mono-red">  - 0.15 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_bag" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (bag)</span>
+          <br>
+          <span class="mono-green">  + 0.13 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_ashcan" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (ashcan)</span>
+          <br>
+          <span class="mono-red">  - 0.07 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_stairs" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (stairs)</span>
+          <br>
+          <span class="mono-red">  - 0.01 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_tradename" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (trade name)</span>
+          <br>
+          <span class="mono-green">  + 3.04</span>
+        </div>
+
+        <!-- Explanation 3 -->
+        <div class='col-xs-3'>
+          <span style="font-size:18px; font-weight:bold">Explanation for Scene C</span>
+          <br>
+          <span class="mono-bold">= </span>
+          <span class="g1_finalscore3" style="font-size:18px; color:blue; font-weight:bold; font-family:monospace; white-space:pre"></span>
+          <br>
+          <span class="mono-bold-no">= </span>
+          <span class="mono-red">- 2.69 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_person" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (person)</span>
+          <br>
+          <span class="mono-green">  + 2.11 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_skyscraper" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (skyscraper)</span>
+          <br>
+          <span class="mono-red">  - 1.71 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_car" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (car)</span>
+          <br>
+          <span class="mono-red">  - 1.42 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_road" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (road)</span>
+          <br>
+          <span class="mono-red">  - 1.41 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_sidewalk" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (sidewalk)</span>
+          <br>
+          <span class="mono-green">  + 0.56 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_sky" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (sky)</span>
+          <br>
+          <span class="mono-red">  - 0.48 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_wall" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (wall)</span>
+          <br>
+          <span class="mono-red">  - 0.31 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_tree" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (tree)</span>
+          <br>
+          <span class="mono-red">  - 0.30 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_streetlight" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (streetlight)</span>
+          <br>
+          <span class="mono-red">  - 0.26 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_flag" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (flag)</span>
+          <br>
+          <span class="mono-green">  + 3.04</span>
+        </div>
+
+        <!-- Explanation 4 -->
+        <div class='col-xs-3'>
+          <span style="font-size:18px; font-weight:bold">Explanation for Scene D</span>
+          <br>
+          <span class="mono-bold">= </span>
+          <span class="g1_finalscore4" style="font-size:18px; color:blue; font-weight:bold; font-family:monospace; white-space:pre"></span>
+          <br>
+          <span class="mono-bold-no">= </span>
+          <span class="mono-red">- 2.73 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_skyscraper" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (skyscraper)</span>
+          <br>
+          <span class="mono-red">  - 1.88 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_grass" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (grass)</span>
+          <br>
+          <span class="mono-red">  - 1.07 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_flag" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (flag)</span>
+          <br>
+          <span class="mono-green">  + 1.01 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_road" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (road)</span>
+          <br>
+          <span class="mono-red">  - 0.92 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_stairway" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (stairway)</span>
+          <br>
+          <span class="mono-red">  - 0.78 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_trafficlight" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (traffic light)</span>
+          <br>
+          <span class="mono-green">  + 0.69 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_sidewalk" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (sidewalk)</span>
+          <br>
+          <span class="mono-green">  + 0.68 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_car" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (car)</span>
+          <br>
+          <span class="mono-green">  + 0.66 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_awning" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (awning)</span>
+          <br>
+          <span class="mono-red">  - 0.60 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_plant" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (plant)</span>
+          <br>
+          <span class="mono-green">  + 0.48 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_person" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (person)</span>
+          <br>
+          <span class="mono-green">  + 0.41 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_van" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (van)</span>
+          <br>
+          <span class="mono-green">  + 0.40 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_sky" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (sky)</span>
+          <br>
+          <span class="mono-red">  - 0.38 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_palm" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (palm)</span>
+          <br>
+          <span class="mono-red">  - 0.30 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_wall" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (wall)</span>
+          <br>
+          <span class="mono-red">  - 0.23 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_earth" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (earth)</span>
+          <br>
+          <span class="mono-green">  + 0.19 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_spotlight" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (spotlight)</span>
+          <br>
+          <span class="mono-red">  - 0.11 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_tradename" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (trade name)</span>
+          <br>
+          <span class="mono-green">  + 0.07 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_mountain" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (mountain)</span>
+          <br>
+          <span class="mono-green">  + 0.63</span>
+        </div>
+
+      </div>
+
+
+      <!-- Model output prediction -->
+      <div class='container-fluid'>
+        <h3>Q. Which scene class do you think the model predicts?</h3>
+        <form action="" method="post">
+          <input type="radio" class="basic" name="predictedclass" value="1"/>
+          <span style="font-size:18px; white-space:pre">Scene A  </span>
+          <input type="radio" class="basic" name="predictedclass" value="2"/>
+          <span style="font-size:18px; white-space:pre">Scene B  </span>
+          <input type="radio" class="basic" name="predictedclass" value="3"/>
+          <span style="font-size:18px; white-space:pre">Scene C  </span>
+          <input type="radio" class="basic" name="predictedclass" value="4"/>
+          <span style="font-size:18px; white-space:pre">Scene D  </span>
+        </form>
+      </div>
+
+      <br><hr>
+
+      <!-- Next photo -->
+      <div class='container-fluid'>
+        <h3>Click &#34;Record&#34; then &#34;Next Photo&#34; after selecting your answer.</h3>
+      </div>
+      <div class='container-fluid' id='button-div'>
+        <input type='submit' class='btn btn-lg btn-success' id='task1_submit' disabled onclick="task1_submit();" value='Record'/>
+        <div class="alert alert-danger" id='all' style="display: none; ">
+          Are you sure you want to select all concepts?
+          Please try to be as accurate as possible in the task.
+        </div>
+        <div class="alert alert-danger" id='none' style="display: none; ">
+          Are you sure you want to select 0 concepts?
+          Please try to be as accurate as possible in the task.
+        </div>
+      </div>
+      <div class='container-fluid' id='button-div'>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id='counter'><span class='counter-top'></span> / <span class='counter-bottom'></span></span>
+        <br>
+        <button id='next_btn' style='background-color:#FFAC1C; border:none;' class='btn btn-lg btn-primary' onclick="record();" disabled>Next Photo</button>
+      </div>
+
+      <br><hr>
+
+
+      <!-- Next page -->
+      <div class='container-fluid'>
+        <h3>Click &#34;Next Page&#34; after selecting answers for all photos.</h3>
+      </div>
+      <br>
+      <div class='container-fluid' id='button-div'>
+        <button disabled class='btn btn-lg btn-primary' id='next_task2post' onclick="record();pg_task2post();">Next Page</button>
+      </div>
+
+      <br><hr>
+
+      <!--Method description-->
+      <div class='container-fluid'>
+        <h3>Click below to open or close the model and explanation description.</h3>
+      </div>
+      <div class='container-fluid' id='button-div'>
+        <button class='btn btn-lg btn-primary' style="background-color:#bb62d1; border:none;"
+        id='display_method' onclick="pg_method();">Model and explanation description</button>
+      </div>
+      <div class='container-fluid' id="part_method" style="display: none;">
+        <div class='col-xs-12'>
+          {% include "hit_templates/intro_8_16_32concept.html" %}
+          <br><br>
+        </div>
+        <br><br>
+      </div>
+
+      <br>
+
+    </div>
+
+  </body>
+</html>

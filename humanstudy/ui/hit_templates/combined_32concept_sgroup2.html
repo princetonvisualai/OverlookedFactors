@@ -1,0 +1,781 @@
+<html>
+  <head>
+    <title>Evaluating interpretability</title>
+    <!-- simpleamt depends on these libraries -->
+    <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/json3/3.3.2/json3.min.js'></script>
+    <!-- end of required libraries -->
+    <script src='//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js'></script>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js'></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- mozilla pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.min.js"></script>
+    <style>
+      #button-div {
+        margin-bottom: 10px;
+      }
+      #reason-area {
+        margin: 10px 0;
+        font-size: 24pt;
+      }
+      #text-area {
+        margin: 10px 0;
+        font-size: 24pt;
+      }
+      #feedback-area {
+        margin: 10px 0;
+        font-size: 24pt;
+      }
+      #counter {
+        margin: 0 10px;
+        font-size: 20pt;
+        font-weight: bold;
+      }
+      #scroll {
+        overflow-y: scroll;
+        white-space: nowrap;
+        height: 60%;
+      }
+      #scroll img {
+        width: auto;
+        height: auto;
+      }
+      p {
+        font-size: 18px;
+      }
+      .btn-group button {
+        background-color: #3e3d3d; /* Green background */
+        border: 1px solid rgb(0, 0, 0); /* Green border */
+        color: white; /* White text */
+        padding: 10px 24px; /* Some padding */
+        cursor: pointer; /* Pointer/hand icon */
+        width: 50%; /* Set a width if needed */
+        display: block; /* Make the buttons appear below each other */
+      }
+      .basic {
+        height: 18px;
+        width: 18px;
+        vertical-align: top;
+      }
+      .mono {
+        font-size: 18px;
+        font-family: monospace;
+        white-space: pre;
+      }
+      .mono-bold {
+        font-size: 18px;
+        font-family: monospace;
+        white-space: pre;
+        font-weight: bold;
+      }
+      .mono-bold-no {
+        font-size: 18px;
+        font-family: monospace;
+        font-weight: bold;
+      }
+      .mono-green {
+        font-size: 18px;
+        font-family: monospace;
+        white-space: pre;
+        color: green;
+      }
+      .mono-red {
+        font-size: 18px;
+        font-family: monospace;
+        white-space: pre;
+        color: red;
+      }
+      table, th, td {
+        border: none;
+        width=100%;
+        white-space:nowrap;
+        table-layout: auto;
+        padding: 10px;
+      }
+      table {
+        border-collapse: collapse;
+        border-spacing: 0;
+        padding: 20px;
+      }
+
+      p, ul, ol, dl, table {
+        margin-bottom: 1em;
+        padding: 20px;
+        margin: 0px;
+        padding: 0px;
+        border: 0px;
+        font-size: 100%;
+        font: inherit;
+        vertical-align: baseline;
+      }
+      .right {
+        transform: rotate(-45deg);
+        -webkit-transform: rotate(-45deg);
+      }
+      .left {
+        transform: rotate(135deg);
+        -webkit-transform: rotate(135deg);
+      }
+      .up {
+        transform: rotate(-135deg);
+        -webkit-transform: rotate(-135deg);
+      }
+      .down {
+        transform: rotate(45deg);
+        -webkit-transform: rotate(45deg);
+      }
+      img {
+        height: auto;
+        width: 100%;
+      }
+      iframe {
+        width: 100%;
+        height: 50%;
+      }
+      hr {
+        display: block;
+        height: 1px;
+        border: 0;
+        border-top: 1px solid #ccc;
+        margin: 1em 0;
+        padding: 0;
+      }
+      li {
+        font-size: 18px;
+      }
+      .row_special {
+        display: grid;
+        grid-auto-flow: column;
+        gap: 10%;
+      }
+
+      .col_special {
+        display: grid;
+        grid-auto-flow: row;
+        align-items: center;
+      }
+      .double {
+        zoom: 1.5;
+        transform: scale(2);
+        -ms-transform: scale(2);
+        -webkit-transform: scale(2);
+        -o-transform: scale(2);
+        -moz-transform: scale(2);
+        transform-origin: 0 0;
+        -ms-transform-origin: 0 0;
+        -webkit-transform-origin: 0 0;
+        -o-transform-origin: 0 0;
+        -moz-transform-origin: 0 0;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <!-- Demographics and background -->
+    {% include "hit_templates/setup.html" %}
+
+
+    <!-- Model introduction -->
+    <div class='container-fluid' id="part_intro" style="display: none; ">
+      <div class='container-fluid'>
+        <h1>Explanation introduction</h1>
+        <p style="font-size:18px">
+          Please carefully read this page as the remaining study depends on your understanding of the model and explanation.
+        </p>
+        <br>
+        {% include "hit_templates/intro_8_16_32concept.html" %}
+        <br>
+        <div class='container-fluid'></div>
+        <br>
+        <div class='container-fluid'>
+          <h3>Please self-rate your level of understanding of concept-based explanations.</h3>
+          <form action="" method="post">
+            <input type="radio" class="basic" name="subjective_expl" value="1" /> <span style="font-size:18px; white-space:pre">Very Poor  </span>
+            <input type="radio" class="basic" name="subjective_expl" value="2" /> <span style="font-size:18px; white-space:pre">Poor  </span>
+            <input type="radio" class="basic" name="subjective_expl" value="3" /> <span style="font-size:18px; white-space:pre">Fair  </span>
+            <input type="radio" class="basic" name="subjective_expl" value="4" /> <span style="font-size:18px; white-space:pre">Good  </span>
+            <input type="radio" class="basic" name="subjective_expl" value="5" /> <span style="font-size:18px; white-space:pre">Very Good  </span>
+          </form>
+        </div>
+        <br><br>
+        <div class='col-xs-12' id='button-div'>
+          <button class='btn btn-lg btn-primary' id="next_intro2preview" disabled onclick="pg_intro2preview()">Next Page</button>
+        </div>
+        <br><br><br>
+      </div>
+    </div>
+
+    <!-- Task preview -->
+    <div class='container-fluid' id="part_preview" style="display: none; ">
+
+      <div class='container-fluid'>
+        <h1>Task preview</h1>
+        <p>
+          You will complete the following task for 5 photos in total.
+          <br>
+          Please try your best on the task. Your work is crucial to the success of our study!
+        <p>
+      </div>
+
+      <br>
+
+      {% include "hit_templates/task_preview.html" %}
+
+    </div>
+
+
+    <!-- Main task -->
+    {% include "hit_templates/task_32concept_sgroup2.html" %}
+
+
+    <!-- Post-task evaluation -->
+    <div class='container-fluid' id='part_post' style="display: none;">
+      <div class='container-fluid'>
+        <h1>Post-task evaluation</h1>
+        <br>
+        <h3>Please self-rate your level of understanding of how the model makes its predictions.</h3>
+        <form action="" method="post">
+          <input type="radio" class="basic" name="subjective2" value="1" /> <span style="font-size:18px">Very Poor</span>
+          <input type="radio" class="basic" name="subjective2" value="2" /> <span style="font-size:18px">Poor</span>
+          <input type="radio" class="basic" name="subjective2" value="3" /> <span style="font-size:18px">Fair</span>
+          <input type="radio" class="basic" name="subjective2" value="4" /> <span style="font-size:18px">Good</span>
+          <input type="radio" class="basic" name="subjective2" value="5" /> <span style="font-size:18px">Very Good</span>
+        </form>
+        <br><br>
+        <h3>During the task, if you selected scenes that didn't have the highest explanation score, please briefly explain what your reasoning was.</h3>
+        <textarea id='reason-area' name='reason-area' class='form-control tb-margin'></textarea>
+      </div>
+
+
+      <br><br><br>
+
+      <div class='col-xs-12' id='button-div'>
+        <button class='btn btn-lg btn-primary' id="next_post2perf"  onclick="pg_post2perf()">Next Page</button>
+      </div>
+
+    </div>
+
+
+    <!-- Your performance -->
+    <div class='container-fluid' id='part_perf' style="display: none;">
+      <div class='container-fluid'>
+        <h1>Your performance</h1>
+        <br>
+        <p>
+          You correctly guessed the scene the model predicted for
+          <span id="correctcount2"></span> out of <span id="correcttotal2"></span> photos Scenes W/X/Y/Z.
+        </p>
+        <br>
+        <h3>Please self-rate your level of understanding of how the model makes its predictions.</h3>
+        <form action="" method="post">
+          <input type="radio" class="basic" name="subjective3" value="1" /> <span style="font-size:18px">Very Poor</span>
+          <input type="radio" class="basic" name="subjective3" value="2" /> <span style="font-size:18px">Poor</span>
+          <input type="radio" class="basic" name="subjective3" value="3" /> <span style="font-size:18px">Fair</span>
+          <input type="radio" class="basic" name="subjective3" value="4" /> <span style="font-size:18px">Good</span>
+          <input type="radio" class="basic" name="subjective3" value="5" /> <span style="font-size:18px">Very Good</span>
+        </form>
+      </div>
+      <br><br><br>
+      <div class='col-xs-12' id='button-div'>
+        <button class='btn btn-lg btn-primary' id="next_perf2choice"  onclick="pg_perf2choice()">Next Page</button>
+      </div>
+
+    </div>
+
+
+    <!-- Choose which explanation to use -->
+    {% include "hit_templates/choice_32concept_sgroup2.html" %}
+
+
+    <!-- Feedback -->
+    <div class='container-fluid' id='part_feedback' style="display: none;">
+      <div class='col-xs-12'>
+        <h3>
+          Thank you for your participation!
+          <br><br>
+          Let us know if you have any feedback about this study.
+        </h3>
+        <textarea id='feedback-area' name='feedback-area' class='form-control tb-margin'></textarea>
+      </div>
+
+      <!-- Submit -->
+      {% include "hit_templates/simpleamt.html" %}
+    </div>
+
+
+
+
+    <!-- Beginning of script -->
+    <script>
+
+      function preview_submit() {
+        document.getElementById('warning').style.display = 'block';
+        var radios = document.querySelectorAll('input[type="radio"]');
+        for (i=0;i<radios.length;i++) {
+          radios[i].disabled = false;
+        }
+      };
+      function task2_submit() {
+        var count = 0;
+        $('#g2_checkboxes input:checked').each(function() { count ++; });
+        if (count == 32) { document.getElementById('all2').style.display = 'block'; }
+        if (count == 0) { document.getElementById('none2').style.display = 'block'; }
+        if (idx2 != input_image2.length-1) { next_btn2.disabled = false;
+        } else {
+          next_btn2.disabled = true;
+          next_task2post.disabled = false;
+        }
+        var radios = document.querySelectorAll('input[type="radio"]');
+        for (i=0;i<radios.length;i++) { radios[i].disabled = false; }
+      };
+
+      // Create timing object
+      timing = {};
+      timing['start'] = Date.now();
+      timing['pg_method2'] = [];
+      timing['nextphoto2'] = [];
+
+      function movepage(div_prev, div_next) {
+        if (div_prev.style.display !== 'none') {
+          div_prev.style.display = 'none';
+          div_next.style.display = 'block';
+        }
+        else {
+          div_prev.style.display = 'block';
+          div_next.style.display = 'none';
+        }
+        // Jump to the top of the page
+        window.scroll({ top: 0, left: 0, behavior: 'smooth' });
+      }
+
+      // Move between pages
+      function pg_consent2demographics() {
+        timing['pg_consent2demographics'] = Date.now();
+        var div_prev = document.getElementById('part_consent');
+        var div_next = document.getElementById('part_demographics');
+        movepage(div_prev, div_next);
+      }
+      function pg_demographics2intro() {
+        timing['pg_demographics2intro'] = Date.now();
+        var div_prev = document.getElementById('part_demographics');
+        var div_next = document.getElementById('part_intro');
+        movepage(div_prev, div_next);
+      }
+      function pg_intro2preview() {
+        timing['pg_intro2preview'] = Date.now();
+        var div_prev = document.getElementById('part_intro');
+        var div_next = document.getElementById('part_preview');
+        movepage(div_prev, div_next);
+      }
+      function pg_preview2task() {
+        timing['pg_preview2task'] = Date.now();
+        var div_prev = document.getElementById('part_preview');
+        var div_next = document.getElementById('part_task');
+        movepage(div_prev, div_next);
+      }
+      function pg_task2post() {
+        timing['pg_task2post'] = Date.now();
+        var div_prev = document.getElementById('part_task');
+        var div_next = document.getElementById('part_post');
+        movepage(div_prev, div_next);
+      }
+      function pg_post2perf() {
+        timing['pg_post2perf'] = Date.now();
+        var div_prev = document.getElementById('part_post');
+        var div_next = document.getElementById('part_perf');
+        movepage(div_prev, div_next);
+      }
+      function pg_perf2choice() {
+        timing['pg_perf2choice'] = Date.now();
+        var div_prev = document.getElementById('part_perf');
+        var div_next = document.getElementById('part_choice');
+        movepage(div_prev, div_next);
+      }
+      function pg_choice2feedback() {
+        timing['pg_choice2feedback'] = Date.now();
+        var div_prev = document.getElementById('part_choice');
+        var div_next = document.getElementById('part_feedback');
+        movepage(div_prev, div_next);
+      }
+      function pg_method2() {
+        timing['pg_method2'][timing['pg_method2'].length] = Date.now();
+        var div_method2 = document.getElementById('part_method2');
+        if (div_method2.style.display == 'none') {
+          div_method2.style.display = 'block';
+        }
+        else {
+          div_method2.style.display = 'none';
+        }
+      }
+
+
+      // Define some default input.
+      var DEFAULT_INPUT = {"input_id": [0],
+        "input_image": ["https://drive.google.com/uc?export=view&id=1ITrx01DEnB3_57O0I5yBvu1jqy-1FPxC",
+        "https://drive.google.com/uc?export=view&id=1hrQ0D3ZYBfrp0f-hIhVnC4Zknn1nCYLB",
+        "https://drive.google.com/uc?export=view&id=1LJy0M_VbOEqFR2r6-KaPtQ5WLSigpqXh",
+        "https://drive.google.com/uc?export=view&id=1o1-R2UwYXR-zn2ZFDEW6s-4UYJc_8P68",
+        "https://drive.google.com/uc?export=view&id=1KvIjd_H0kR6MUCcNqI6DBi5sIo95JxS_"],
+        "input_imagename": ["ADE_train_00016439.jpg",
+        "ADE_train_00016961.jpg",
+        "ADE_train_00016367.jpg",
+        "ADE_train_00017034.jpg",
+        "ADE_train_00018406.jpg"],
+        "predicted": [3, 4, 1, 2, 2],
+        "input_image2": ["https://drive.google.com/uc?export=view&id=1t8czqitJwFUppov8paT6f06tRXERIrqp",
+        "https://drive.google.com/uc?export=view&id=1ctJpH97-_nNAGpfeB2h38M6RUK8fgAEm",
+        "https://drive.google.com/uc?export=view&id=1IXNSwxmDkV0GGRRRNBrgODtoQx_FKFZl",
+        "https://drive.google.com/uc?export=view&id=1MQhw8LRagKwvGqZ2IKRhHzy13B0vRGGb",
+        "https://drive.google.com/uc?export=view&id=1gfw0VHUhbQUoxNaIAkFsRkDAD_NEoArb"],
+        "input_imagename2": ["ADE_train_00003787.jpg",
+        "ADE_val_00000161.jpg",
+        "ADE_train_00006850.jpg",
+        "ADE_train_00011102.jpg",
+        "ADE_train_00000233.jpg"],
+        "predicted2": [1, 1, 2, 4, 1]
+      }
+
+
+      // Variables to record answers
+      var reasons = [], descriptions = [], feedback = [];
+
+      // Some variables to track state of the HIT.
+      var enabled = false, longinput = null;
+
+      var localanswers2 = [], idx2 = 0;
+      var finalscores2 = [];
+
+      var correctacclist2 = []; var correcttotal2 = [];
+      document.getElementById("correctcount2").innerHTML = 5;
+      document.getElementById("correcttotal2").innerHTML = 5;
+
+      // Initialize concept scores
+      const preview_score_names = ["preview_score_wall", "preview_score_sky", "preview_score_floor",
+        "preview_score_windowpane", "preview_score_tree", "preview_score_building", "preview_score_person",
+        "preview_score_door", "preview_score_table", "preview_score_plant", "preview_score_ceiling"];
+      for(const v of preview_score_names) {
+        for(i=0;i<document.getElementsByClassName(v).length;i++){
+          document.getElementsByClassName(v)[i].innerHTML = 0;
+        };
+      }
+      const g2_score_names = ['g2_score_wall', 'g2_score_windowpane', 'g2_score_table', 'g2_score_plant',
+        'g2_score_chair', 'g2_score_carpet', 'g2_score_lamp', 'g2_score_curtain', 'g2_score_bed', 'g2_score_sofa',
+        'g2_score_box', 'g2_score_cushion', 'g2_score_book', 'g2_score_seat', 'g2_score_armchair', 'g2_score_wallsocket',
+        'g2_score_sconce', 'g2_score_pillow', 'g2_score_plate', 'g2_score_clock', 'g2_score_coffeetable',
+        'g2_score_desk', 'g2_score_television', 'g2_score_chandelier', 'g2_score_switch', 'g2_score_chestofdrawers',
+        'g2_score_drinkingglass', 'g2_score_telephone', 'g2_score_fireplace', 'g2_score_fan', 'g2_score_blind', 'g2_score_ottoman'];
+      for(const v of g2_score_names) {
+        for(i=0;i<document.getElementsByClassName(v).length;i++){
+          document.getElementsByClassName(v)[i].innerHTML = 0;
+        };
+      }
+      // Initialize final scores with the bias term
+      const finalscorenames = ["preview_finalscore1", "preview_finalscore2", "preview_finalscore3", "preview_finalscore4",
+                                "g2_finalscore1", "g2_finalscore2", "g2_finalscore3", "g2_finalscore4"]
+      const finalscorevars = [0.02, 0.42, 2.02, 0.00, 0.00, 2.23, 2.68, 2.77]
+      for(k=0;k<finalscorenames.length;k++) {
+        varname = finalscorenames[k]
+        for(i=0;i<document.getElementsByClassName(varname).length;i++){
+          document.getElementsByClassName(varname)[i].innerHTML = finalscorevars[k];
+        };
+      }
+
+      // Initialize final score variables
+      var preview_finalscore1 = 0, preview_finalscore2 = 0, preview_finalscore3 = 0, preview_finalscore4 = 0;
+      var g2_finalscore1 = 0, g2_finalscore2 = 0, g2_finalscore3 = 0, g2_finalscore4 = 0;
+
+      // Initialize concept score variables
+      const preview_names = ["preview_wall", "preview_sky", "preview_floor", "preview_windowpane", "preview_tree",
+        "preview_building", "preview_person", "preview_door", "preview_table", "preview_plant", "preview_ceiling"];
+      var p_scores = {};
+      for(const a of preview_names) { p_scores[a] = 0; }
+
+      const g2_names = ['g2_wall', 'g2_windowpane', 'g2_table', 'g2_plant', 'g2_chair', 'g2_carpet',
+        'g2_lamp', 'g2_curtain', 'g2_bed', 'g2_sofa', 'g2_box', 'g2_cushion', 'g2_book', 'g2_seat',
+        'g2_armchair', 'g2_wallsocket', 'g2_sconce', 'g2_pillow', 'g2_plate', 'g2_clock', 'g2_coffeetable',
+        'g2_desk', 'g2_television', 'g2_chandelier', 'g2_switch', 'g2_chestofdrawers', 'g2_drinkingglass',
+        'g2_telephone', 'g2_fireplace', 'g2_fan', 'g2_blind', 'g2_ottoman'];
+      var g2_scores = {};
+      for(const a of g2_names) { g2_scores[a] = 0; }
+
+      function record2() {
+        timing['nextphoto2'][idx2] = Date.now();
+
+        // Record selections
+        var selected2 = [];
+        $('#g2_checkboxes input:checked').each(function() {
+            selected2.push($(this).attr('value'));
+        });
+        localanswers2[idx2] = {
+          'predictedclass': parseInt($('input[name=predictedclass2]:checked').val(), 10),
+          'selected': selected2
+        };
+        finalscores2[idx2] = {
+          '1': g2_finalscore1,
+          '2': g2_finalscore2,
+          '3': g2_finalscore3,
+          '4': g2_finalscore4
+        };
+
+        // Calculate accuracy
+        for (var i = 0; i < input_image2.length; ++i) {
+          if (localanswers2[i]['predictedclass'] == predicted2[i]) { correctacclist2[i] = 1; }
+          else { correctacclist2[i] = 0; }
+          correcttotal2[i] = 1;
+        }
+        correctcount2 = correctacclist2.reduce(function(a, b) { return Number(a) + Number(b); }, 0);
+        correcttotal2 = correcttotal2.reduce(function(a, b) { return Number(a) + Number(b); }, 0);
+        document.getElementById("correctcount2").innerHTML = correctcount2;
+        document.getElementById("correcttotal2").innerHTML = correcttotal2;
+
+      } // End of record()
+
+
+      $(function() {
+
+        // Allow next page buttons
+        $("input[name='consent']").change(function(){next_consent2demographics.disabled = false;});
+        $("input[name='ml_exp']").change(function(){next_demographics2intro.disabled = false;});
+        $("input[name='preview']").change(function(){document.getElementById('preview_submit').disabled = false;});
+        $("input[name='subjective_expl']").change(function(){next_intro2preview.disabled = false;});
+        $("input[name='subjective']").change(function(){next_preview2task.disabled = false;});
+        $("input[name='subjective2']").change(function(){next_post2perf.disabled = false;});
+        $("input[name='subjective3']").change(function(){next_perf2choice.disabled = false;});
+        $("input[name='tradeoff']").change(function(){next_choice2feedback.disabled = false;});
+
+        // Allow next page button only when the task is complete
+        $("input[name='predictedclass2']").change(function(){
+          if ($("input[name='predictedclass2']").is(":checked")) {
+            if (idx2 != input_image2.length-1) {
+              document.getElementById('task2_submit').disabled = false;
+              document.getElementById('all2').style.display = 'none';
+              document.getElementById('none2').style.display = 'none';
+            }
+            if (idx2 == input_image2.length-1) {
+              document.getElementById('task2_submit').disabled = false;
+            }
+         }
+        });
+
+        // If there is a change to a concept checkbox, update concept and final explanation scores
+        for(k=0;k<preview_names.length;k++) {
+          const a = preview_names[k]
+          $("input[name="+a+"]").change(function(){
+            p_scores[a] = this.checked ? 1 : 0;
+            preview_onclick();
+          });
+        }
+        for(k=0;k<g2_names.length;k++) {
+          const a = g2_names[k]
+          $("input[name="+a+"]").change(function(){
+            g2_scores[a] = this.checked ? 1 : 0;
+            g2_onclick();
+          });
+        }
+
+        // Calculate final explanation scores
+        function preview_onclick() {
+
+          for(k=0;k<preview_score_names.length;k++) {
+            for(i=0;i<document.getElementsByClassName(preview_score_names[k]).length;i++){
+              document.getElementsByClassName(preview_score_names[k])[i].innerHTML = p_scores[preview_names[k]];
+            };
+          };
+
+          preview_finalscore1 = 3.54 * p_scores['preview_wall'] - 1.96 * p_scores['preview_sky'] + 1.63 * p_scores['preview_floor'] - 1.54 * p_scores['preview_windowpane'] + 1.46 * p_scores['preview_tree'] - 1.31 * p_scores['preview_building'] + 1.25 * p_scores['preview_person'] - 1.22 * p_scores['preview_door'] + 0.02
+          for(i=0;i<document.getElementsByClassName("preview_finalscore1").length;i++){
+            document.getElementsByClassName("preview_finalscore1")[i].innerHTML = preview_finalscore1.toFixed(2);
+          };
+          preview_finalscore2 = 2.43 * p_scores['preview_wall'] - 1.94 * p_scores['preview_sky'] + 0.42
+          for(i=0;i<document.getElementsByClassName("preview_finalscore2").length;i++){
+            document.getElementsByClassName("preview_finalscore2")[i].innerHTML = preview_finalscore2.toFixed(2);
+          };
+          preview_finalscore3 = 3.07 * p_scores['preview_wall'] - 2.31 * p_scores['preview_sky'] - 2.24 * p_scores['preview_floor'] + 1.81 * p_scores['preview_windowpane'] - 1.79 * p_scores['preview_tree'] - 1.69 * p_scores['preview_building'] + 1.37 * p_scores['preview_person'] - 1.36 * p_scores['preview_ceiling'] + 2.02
+          for(i=0;i<document.getElementsByClassName("preview_finalscore3").length;i++){
+            document.getElementsByClassName("preview_finalscore3")[i].innerHTML = preview_finalscore3.toFixed(2);
+          };
+          preview_finalscore4 = - 1.81 * p_scores['preview_wall'] - 1.66 * p_scores['preview_floor'] + 1.38 * p_scores['preview_person'] - 1.37 * p_scores['preview_door'] + 1.00 * p_scores['preview_ceiling'] + 0
+          for(i=0;i<document.getElementsByClassName("preview_finalscore4").length;i++){
+            document.getElementsByClassName("preview_finalscore4")[i].innerHTML = preview_finalscore4.toFixed(2);
+          };
+
+        }; // End of preview_onclick()
+
+        function g2_onclick() {
+
+          for(k=0;k<g2_score_names.length;k++) {
+            for(i=0;i<document.getElementsByClassName(g2_score_names[k]).length;i++){
+              document.getElementsByClassName(g2_score_names[k])[i].innerHTML = g2_scores[g2_names[k]];
+            };
+          };
+
+          g2_finalscore1 = 3.57*g2_scores['g2_bed'] - 1.02*g2_scores['g2_sofa'] - 0.97*g2_scores['g2_coffeetable'] - 0.86*g2_scores['g2_chair'] - 0.80*g2_scores['g2_sconce'] + 0.64*g2_scores['g2_windowpane'] - 0.60*g2_scores['g2_armchair'] - 0.60*g2_scores['g2_television'] - 0.58*g2_scores['g2_drinkingglass'] + 0.52*g2_scores['g2_fan'] - 0.42*g2_scores['g2_switch'] + 0.32*g2_scores['g2_cushion'] - 0.28*g2_scores['g2_table'] + 0.26*g2_scores['g2_box'] - 0.25*g2_scores['g2_curtain'] + 0.24*g2_scores['g2_blind'] + 0.23*g2_scores['g2_chestofdrawers'] + 0.12*g2_scores['g2_clock'] - 0.10*g2_scores['g2_telephone'] - 0.01*g2_scores['g2_chandelier'] + 0.00
+          for(i=0;i<document.getElementsByClassName("g2_finalscore1").length;i++){
+            document.getElementsByClassName("g2_finalscore1")[i].innerHTML = g2_finalscore1.toFixed(2);
+          };
+          g2_finalscore2 = -4.39*g2_scores['g2_bed'] + 2.70*g2_scores['g2_chair'] - 1.98*g2_scores['g2_sofa'] - 1.01*g2_scores['g2_coffeetable'] - 1.00*g2_scores['g2_cushion'] - 0.94*g2_scores['g2_fireplace'] + 0.75*g2_scores['g2_table'] - 0.75*g2_scores['g2_pillow'] - 0.73*g2_scores['g2_armchair'] + 0.65*g2_scores['g2_chandelier'] + 0.46*g2_scores['g2_plate'] - 0.45*g2_scores['g2_clock'] - 0.42*g2_scores['g2_lamp'] - 0.29*g2_scores['g2_curtain'] + 0.22*g2_scores['g2_wallsocket'] - 0.19*g2_scores['g2_ottoman'] - 0.18*g2_scores['g2_book'] - 0.14*g2_scores['g2_television'] - 0.05*g2_scores['g2_sconce'] + 0.01*g2_scores['g2_drinkingglass'] + 2.23
+          for(i=0;i<document.getElementsByClassName("g2_finalscore2").length;i++){
+            document.getElementsByClassName("g2_finalscore2")[i].innerHTML = g2_finalscore2.toFixed(2);
+          };
+          g2_finalscore3 = 2.20*g2_scores['g2_bed'] - 2.09*g2_scores['g2_wall'] - 1.21*g2_scores['g2_windowpane'] + 0.96*g2_scores['g2_television'] - 0.96*g2_scores['g2_box'] - 0.94*g2_scores['g2_chandelier'] - 0.86*g2_scores['g2_carpet'] - 0.77*g2_scores['g2_plant'] - 0.71*g2_scores['g2_blind'] + 0.69*g2_scores['g2_desk'] + 0.64*g2_scores['g2_sconce'] + 0.50*g2_scores['g2_armchair'] + 0.50*g2_scores['g2_curtain'] + 0.47*g2_scores['g2_telephone'] - 0.46*g2_scores['g2_cushion'] - 0.42*g2_scores['g2_chestofdrawers'] + 0.38*g2_scores['g2_switch'] + 0.29*g2_scores['g2_pillow'] - 0.22*g2_scores['g2_book'] - 0.08*g2_scores['g2_clock'] + 0.07*g2_scores['g2_coffeetable'] - 0.07*g2_scores['g2_wallsocket'] - 0.05*g2_scores['g2_fireplace'] - 0.03*g2_scores['g2_fan'] - 0.03*g2_scores['g2_table'] + 2.68
+          for(i=0;i<document.getElementsByClassName("g2_finalscore3").length;i++){
+            document.getElementsByClassName("g2_finalscore3")[i].innerHTML = g2_finalscore3.toFixed(2);
+          };
+          g2_finalscore4 = -2.41*g2_scores['g2_bed'] + 2.13*g2_scores['g2_sofa'] + 1.21*g2_scores['g2_fireplace'] + 1.17*g2_scores['g2_coffeetable'] - 1.07*g2_scores['g2_wall'] - 0.98*g2_scores['g2_chair'] - 0.95*g2_scores['g2_table'] + 0.86*g2_scores['g2_cushion'] + 0.83*g2_scores['g2_ottoman'] + 0.75*g2_scores['g2_armchair'] + 0.65*g2_scores['g2_seat'] + 0.49*g2_scores['g2_book'] + 0.28*g2_scores['g2_carpet'] - 0.28*g2_scores['g2_wallsocket'] - 0.28*g2_scores['g2_fan'] - 0.25*g2_scores['g2_chandelier'] - 0.24*g2_scores['g2_plate'] + 0.15*g2_scores['g2_plant'] - 0.11*g2_scores['g2_telephone'] + 0.10*g2_scores['g2_box'] + 0.03*g2_scores['g2_sconce'] + 0.02*g2_scores['g2_windowpane'] + 2.77
+          for(i=0;i<document.getElementsByClassName("g2_finalscore4").length;i++){
+            document.getElementsByClassName("g2_finalscore4")[i].innerHTML = g2_finalscore4.toFixed(2);
+          };
+
+        }; // End of g2_onclick()
+
+
+        function main() {
+          // If this is a HIT on AMT, then replace the default input with the real input
+          longinput = simpleamt.getInput(DEFAULT_INPUT);
+
+          // Load input
+          input_id = longinput['input_id'][0]
+          input_image2 = longinput['input_image2']
+          predicted2 = longinput['predicted2']
+
+          // Enable the UI if the HIT is not in preview mode
+          if (!simpleamt.isPreview()) {
+            enable_hit();
+          }
+
+          // Set up the descriptions
+          _.each(input, function() { reasons.push(''); });
+          _.each(input, function() { descriptions.push(''); });
+          _.each(input, function() { feedback.push(''); });
+
+          // Render page
+          render();
+        }
+
+        // Render page with current index input
+        function render() {
+
+          // Jump to the top of the page
+          window.scroll({ top: 0, left: 0, behavior: 'smooth' });
+
+          // Set up the image
+          $('#testimage-container2').empty();
+          $('<img>').attr({
+            'src':input_image2[idx2], 'height':'20%', 'align':'center'
+          }).appendTo($('#testimage-container2'));
+
+          // Set up the text area
+          $('#reason-area').val(reasons);
+          $('#text-area').val(descriptions);
+          $('#feedback-area').val(feedback);
+
+          // Refresh the image counter
+          $('.counter-top2').text(idx2 + 1);
+          $('.counter-bottom2').text(input_image2.length);
+
+        } // End of render()
+
+        // Save the input and update the index
+        function set_idx2(new_idx) {
+          if (new_idx < 0 || new_idx >= input_image2.length) return;
+          idx2 = new_idx;
+          render();
+        }
+
+        // Enable the UI
+        function enable_hit() {
+          enabled = true;
+
+          // Enable components
+          $('#next_btn2').click(function() {
+            set_idx2(idx2 + 1);
+            $('input[name=predictedclass2]').prop('checked',false);
+            next_btn2.disabled = true;
+            document.getElementById('task2_submit').disabled = true;
+            document.getElementById('all2').style.display = 'none';
+            document.getElementById('none2').style.display = 'none';
+
+            // Reset checkboxes and scores
+            $('input[type=checkbox]').each(function() { this.checked = false; });
+            for(k=0;k<g2_names.length;k++) {
+              const a = g2_names[k]
+              g2_scores[a] = 0;
+            }
+            g2_onclick()
+          });
+
+          // Enable components
+          $('#text-area').prop('disabled', false);
+          $('#feedback-area').prop('disabled', false);
+          $('#submit-btn').prop('disabled', false);
+
+          // Set up submit handler.
+          simpleamt.setupSubmit();
+          $('#submit-btn').click(function() {
+
+            timing['submit'] = Date.now();
+
+            // Choice answers
+            ml_exp = $('input[name=ml_exp]:checked').val();
+            subjective_expl = $('input[name=subjective_expl]:checked').val();
+            subjective = $('input[name=subjective]:checked').val();
+            subjective2 = $('input[name=subjective2]:checked').val();
+            subjective3 = $('input[name=subjective3]:checked').val();
+            tradeoff = $('input[name=tradeoff]:checked').val();
+
+            // Performance
+            correctcount2 = document.getElementById("correctcount2").innerHTML;
+
+            // Demographics
+            gender = []; race = [];
+            if ($('input[name=gender]:checked').length > 0) { gender.push($('input[name=gender]:checked').val()); }
+            else { gender.push(""); };
+            if ($('input[name=race]:checked').length > 0) { race.push($('input[name=race]:checked').val()); }
+            else {race.push("");};
+            if (gender.length === 0) {gender = [''];};
+            if (race.length === 0) {race = [''];};
+            gender_written = [];
+            gender_written.push($('#genderdescribe').val());
+
+            // Descriptions of reasons
+            reasons = [];
+            reasons.push($('#reason-area').val());
+            descriptions = [];
+            descriptions.push($('#text-area').val());
+            feedback = [];
+            feedback.push($('#feedback-area').val());
+
+            // Return output
+            var output = _.map(_.zip(ml_exp,
+              gender, gender_written, race,
+              subjective_expl,
+              subjective, subjective2, subjective3,
+              tradeoff, correctcount2,
+              reasons, descriptions, feedback), function(x) {
+              return {'ml_exp': x[0],
+              'gender': x[1], 'gender_written': x[2], 'race': x[3],
+              'subjective_expl': x[4],
+              'subjective': x[5], 'subjective2': x[6], 'subjective3': x[7],
+              'tradeoff': x[8], 'correctcount2': x[9],
+              'reasons':x[10], 'descriptions':x[11], 'feedback': x[12]};
+            });
+            output.push({"input": input_id});
+            output.push({"timing": timing});
+            output.push({"individual_answers2": localanswers2});
+            output.push({'correctacclist2': correctacclist2});
+            output.push({'finalscores2': finalscores2});
+            simpleamt.setOutput(output);
+
+          }); // End of submit-btn()
+
+        } // End of enable_hit()
+
+        main();
+
+      }); // End of function()
+
+
+    </script>
+  </body>
+</html>

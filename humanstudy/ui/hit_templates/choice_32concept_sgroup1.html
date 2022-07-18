@@ -1,0 +1,80 @@
+<div class='container-fluid' id='part_choice' style="display: none;">
+  <div class='container-fluid'>
+    <h1>Simplicity-Correctness Tradeoff</h1>
+    <p>
+      So far we have only shown photos where the scene with the highest explanation score
+      matches the scene the model predicts.
+      <br><br>
+      However, this is not always the case, and you can choose the level of <b>simplicity</b> and <b>correctness</b> of concept-based explanation.
+      <br><br>
+      <b>Simplicity</b> refers to the number of concepts used in a given set of explanations.
+      <br>
+      <b>Correctness</b> refers to the percentage of times the explanations correctly explain the model prediction.
+    </p>
+  </div>
+
+  <br>
+
+  <div class='container-fluid'>
+    <p>
+      For reference, we show how explanations for scene <b>embassy</b> look when they use different number of concepts.
+    </p>
+    <br>
+    <div class='col-xs-6'>
+      <img src="https://drive.google.com/uc?export=view&id=1jhxFi6eZjIP2NEIqcAl-ohyt1kJxcNOH" width=100%>
+    </div>
+  </div>
+
+  <br><br>
+
+  <div class='container-fluid'>
+    <p>
+      Below is a plot that visualizes the tradeoff between simplicity and correctness.
+      <br>
+      In the previous task, you saw explanations that use up to 32 concepts to distinguish between Scenes A/B/C/D.
+    </p>
+    <br>
+    <div class='col-xs-8'>
+      <img src="https://drive.google.com/uc?export=view&id=1Qq1GzaB9Fu0ixE_3rgGCeeLL2hRtqpiP" width=100%>
+    </div>
+  </div>
+
+  <br>
+
+  <div class='container-fluid'>
+    <h3>Q. Which would you prefer?</h3>
+    <form action="" method="post">
+      <input type="radio" class="basic" name="tradeoff" value="1"/>
+      <span style="font-size:18px">Explanations that use up to 4 concepts</span>
+      <br>
+      <input type="radio" class="basic" name="tradeoff" value="2"/>
+      <span style="font-size:18px">Explanations that use up to 8 concepts</span>
+      <br>
+      <input type="radio" class="basic" name="tradeoff" value="3"/>
+      <span style="font-size:18px">Explanations that use up to 16 concepts</span>
+      <br>
+      <input type="radio" class="basic" name="tradeoff" value="4"/>
+      <span style="font-size:18px">Explanations that use up to 32 concepts</span>
+      <br>
+      <input type="radio" class="basic" name="tradeoff" value="5"/>
+      <span style="font-size:18px">Explanations that use up to 64 concepts</span>
+    </form>
+  </div>
+
+  <br>
+
+  <div class='container-fluid'>
+    <div class='row'>
+      <div class='col-xs-12'>
+        <h3>Briefly describe the reason for your choice.</h3>
+        <textarea id='text-area' name='text-area' class='form-control tb-margin'></textarea>
+      </div>
+    </div>
+  </div>
+
+
+  <div class='container-fluid' id='button-div'>
+    <button class='btn btn-lg btn-primary' id="next_choice2feedback" disabled onclick="pg_choice2feedback()">Next Page</button>
+  </div>
+
+</div>

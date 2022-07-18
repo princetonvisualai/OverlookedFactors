@@ -1,0 +1,298 @@
+<div class='container-fluid'>
+
+  <!-- Black box -->
+  <div class='col-xs-12' style="border:1px solid black;">
+
+    <div class='container-fluid'>
+      <h2>Task: Recognize concepts and guess the model output</h2>
+      <p>
+        We have a model that predicts one of four scenes (1, 2, 3, 4) for a photo.
+        <br>
+        We also have explanations for how the model decides to predict each scene.
+        <br><br>
+        In this task, we ask you to use these explanations to guess which scene the model predicts.
+        <br>
+        You will do so by first <b>checking all concepts you think are present in the photo</b>,
+        <br>
+        then <b>choosing the scene you think the model predicts</b> based on the explanation scores.
+        <br><br>
+        Note that the explanation scores changes based on your concept selections, not the model's.
+        <br>
+        We don't know what the model will predict for this photo, we're trying to guess that!
+      </p>
+    </div>
+
+    <br>
+
+    <div class='container-fluid'>
+
+      <!-- Photo -->
+      <div class='col-xs-3'>
+        <img src="https://drive.google.com/uc?export=view&id=1382niSyxsTNptAQNvq3spa94rKvwHkYP" width=100%>
+      </div>
+
+      <!-- Concepts -->
+      <div id='preview_checkboxes'class='col-xs-2'>
+        <span style="font-size:18px; font-weight:bold">Concepts</span>
+        <br>
+        <input type="checkbox" class="basic" name="preview_wall" value="preview_wall" />
+        <span class="mono">wall</span>
+        <br>
+        <input type="checkbox" class="basic" name="preview_sky" value="preview_sky" />
+        <span class="mono">sky</span>
+        <br>
+        <input type="checkbox" class="basic" name="preview_floor" value="preview_floor" />
+        <span class="mono">floor</span>
+        <br>
+        <input type="checkbox" class="basic" name="preview_windowpane" value="preview_windowpane" />
+        <span class="mono">windowpane</span>
+        <br>
+        <input type="checkbox" class="basic" name="preview_tree" value="preview_tree" />
+        <span class="mono">tree</span>
+        <br>
+        <input type="checkbox" class="basic" name="preview_building" value="preview_building" />
+        <span class="mono">building</span>
+        <br>
+        <input type="checkbox" class="basic" name="preview_person" value="preview_person" />
+        <span class="mono">person</span>
+        <br>
+        <input type="checkbox" class="basic" name="preview_door" value="preview_door" />
+        <span class="mono">door</span>
+        <br>
+        <input type="checkbox" class="basic" name="preview_table" value="preview_table" />
+        <span class="mono">table</span>
+        <br>
+        <input type="checkbox" class="basic" name="preview_plant" value="preview_plant" />
+        <span class="mono">plant</span>
+        <br>
+        <input type="checkbox" class="basic" name="preview_ceiling" value="preview_ceiling" />
+        <span class="mono">ceiling</span>
+      </div>
+
+    </div>
+
+    <br><br>
+
+    <div class='container-fluid'>
+
+      <!-- Explanation 1 -->
+      <div class='col-xs-3'>
+        <span style="font-size:18px; font-weight:bold">Explanation for Scene 1</span>
+        <br>
+        <span class="mono-bold">= </span>
+        <span class="preview_finalscore1" style="font-size:18px; color:blue; font-weight:bold; font-family:monospace; white-space:pre"></span>
+        <br>
+        <span class="mono-bold-no">= </span>
+        <span class="mono-green">+ 3.54 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_wall" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (wall)</span>
+        <br>
+        <span class="mono-red">  - 1.96 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_sky" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (sky)</span>
+        <br>
+        <span class="mono-green">  + 1.63 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_floor" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (floor)</span>
+        <br>
+        <span class="mono-red">  - 1.54 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_windowpane" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (windowpane)</span>
+        <br>
+        <span class="mono-green">  + 1.46 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_tree" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (tree)</span>
+        <br>
+        <span class="mono-red">  - 1.31 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_building" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (building)</span>
+        <br>
+        <span class="mono-green">  + 1.25 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_person" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (person)</span>
+        <br>
+        <span class="mono-red">  - 1.22 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_door" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (door)</span>
+        <br>
+        <span class="mono-green">  + 0.02</span>
+      </div>
+
+      <!-- Explanation 2 -->
+      <div class='col-xs-3'>
+        <span style="font-size:18px; font-weight:bold">Explanation for Scene 2</span>
+        <br>
+        <span class="mono-bold">= </span>
+        <span class="preview_finalscore2" style="font-size:18px; color:blue; font-weight:bold; font-family:monospace; white-space:pre"></span>
+        <br>
+        <span class="mono-bold-no">= </span>
+        <span class="mono-green">+ 2.43 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_wall" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (wall)</span>
+        <br>
+        <span class="mono-red">  - 1.94 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_sky" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (sky)</span>
+        <br>
+        <span style="font-size:18px; color:green; font-family:monospace; white-space:pre">  + 0.42 </span>
+      </div>
+
+      <!-- Explanation 3 -->
+      <div class='col-xs-3'>
+        <span style="font-size:18px; font-weight:bold">Explanation for Scene 3</span>
+        <br>
+        <span class="mono-bold">= </span>
+        <span class="preview_finalscore3" style="font-size:18px; color:blue; font-weight:bold; font-family:monospace; white-space:pre"></span>
+        <br>
+        <span class="mono-bold-no">= </span>
+        <span class="mono-green">+ 3.07 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_wall" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (wall)</span>
+        <br>
+        <span class="mono-red">  - 2.31 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_sky" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (sky)</span>
+        <br>
+        <span class="mono-red">  - 2.24 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_floor" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (floor)</span>
+        <br>
+        <span class="mono-green">  + 1.81 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_windowpane" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (windowpane)</span>
+        <br>
+        <span class="mono-red">  - 1.79 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_tree" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (tree)</span>
+        <br>
+        <span class="mono-red">  - 1.69 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_building" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (building)</span>
+        <br>
+        <span class="mono-green">  + 1.37 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_person" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (person)</span>
+        <br>
+        <span class="mono-red">  - 1.36 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_ceiling" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (ceiling)</span>
+        <br>
+        <span class="mono-green">  + 2.02</span>
+      </div>
+
+      <!-- Explanation 4 -->
+      <div class='col-xs-3'>
+        <span style="font-size:18px; font-weight:bold">Explanation for Scene 4</span>
+        <br>
+        <span class="mono-bold">= </span>
+        <span class="preview_finalscore4" style="font-size:18px; color:blue; font-weight:bold; font-family:monospace; white-space:pre"></span>
+        <br>
+        <span class="mono-bold-no">= </span>
+        <span class="mono-red">- 1.81 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_wall" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (wall)</span>
+        <br>
+        <span class="mono-red">  - 1.66 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_floor" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (floor)</span>
+        <br>
+        <span class="mono-green">  + 1.38 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_person" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (person)</span>
+        <br>
+        <span class="mono-red">  - 1.37 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_door" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (door)</span>
+        <br>
+        <span class="mono-green">  + 1.00 </span>
+        <span class="mono">x </span>
+        <span class="preview_score_ceiling" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+        <span class="mono"> (ceiling)</span>
+        <br>
+        <span class="mono-green">  + 0.00</span>
+      </div>
+
+    </div>
+
+    <br>
+
+    <div class='container-fluid'>
+      <h3>Q. Which scene do you think the model predicts?</h3>
+      <form action="" method="post">
+        <input type="radio" class="basic" name="preview" value="1"/>
+        <span style="font-size:18px; white-space:pre">Scene 1  </span>
+        <input type="radio" class="basic" name="preview" value="2"/>
+        <span style="font-size:18px; white-space:pre">Scene 2  </span>
+        <input type="radio" class="basic" name="preview" value="3"/>
+        <span style="font-size:18px; white-space:pre">Scene 3  </span>
+        <input type="radio" class="basic" name="preview" value="4"/>
+        <span style="font-size:18px; white-space:pre">Scene 4  </span>
+      </form>
+    </div>
+
+    <br>
+
+    <div class='container-fluid'>
+      <h3>Click &#34;Record&#34; after selecting your answer.</h3>
+    </div>
+    <div class='container-fluid'>
+      <input type='submit' class='btn btn-lg btn-success' id='preview_submit' disabled onclick="preview_submit();" value='Record'/>
+      <div class="alert alert-warning" id='warning' style="display: none; ">
+        The concepts present in the photo are <strong>wall, floor, person</strong>.
+        Please try to be as accurate as possible when the actual task begins!
+      </div>
+    </div>
+
+    <br><br>
+
+    <div class='container-fluid'></div>
+
+  </div> <!-- End of black box -->
+
+</div>
+
+<br>
+
+<div class='container-fluid'>
+  <br>
+  <h3>Please self-rate your level of understanding of how the model makes its predictions.</h3>
+  <form action="" method="post">
+    <input disabled type="radio" class="basic" name="subjective" value="1" /> <span style="font-size:18px; white-space:pre">Very Poor  </span>
+    <input disabled type="radio" class="basic" name="subjective" value="2" /> <span style="font-size:18px; white-space:pre">Poor  </span>
+    <input disabled type="radio" class="basic" name="subjective" value="3" /> <span style="font-size:18px; white-space:pre">Fair  </span>
+    <input disabled type="radio" class="basic" name="subjective" value="4" /> <span style="font-size:18px; white-space:pre">Good  </span>
+    <input disabled type="radio" class="basic" name="subjective" value="5" /> <span style="font-size:18px; white-space:pre">Very Good  </span>
+  </form>
+</div>
+
+<br><br><br>
+
+<div class='col-xs-12' id='button-div'>
+  <br>
+  <button class='btn btn-lg btn-primary' id="next_preview2task" disabled onclick="pg_preview2task()">Begin Task</button>
+  <br><br>
+</div>
+
+<br><br>

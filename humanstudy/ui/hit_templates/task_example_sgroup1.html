@@ -1,0 +1,247 @@
+<html>
+  <head>
+    <title>Evaluating interpretability</title>
+    <!-- simpleamt depends on these libraries -->
+    <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/json3/3.3.2/json3.min.js'></script>
+    <!-- end of required libraries -->
+    <script src='//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js'></script>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js'></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      #text-area {
+        margin: 10px 0;
+        font-size: 24pt;
+      }
+      #button-div {
+        margin-bottom: 10px;
+      }
+      #counter {
+        margin: 0 10px;
+        font-size: 20pt;
+        font-weight: bold;
+      }
+      p {
+        font-size: 18px;
+      }
+      hr {
+        display: block;
+        height: 1px;
+        border: 0;
+        border-top: 1px solid #ccc;
+        margin: 1em 0;
+        padding: 0;
+      }
+      li {
+        font-size: 18px;
+      }
+      .row_special {
+        display: grid;
+        grid-auto-flow: column;
+        gap: 10%;
+      }
+
+      .col_special {
+        display: grid;
+        grid-auto-flow: row;
+        align-items: center;
+      }
+      .double {
+        zoom: 1.5;
+        transform: scale(2);
+        -ms-transform: scale(2);
+        -webkit-transform: scale(2);
+        -o-transform: scale(2);
+        -moz-transform: scale(2);
+        transform-origin: 0 0;
+        -ms-transform-origin: 0 0;
+        -webkit-transform-origin: 0 0;
+        -o-transform-origin: 0 0;
+        -moz-transform-origin: 0 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class='container-fluid' id='part_task' style="display: none;">
+
+      <div class='container-fluid'>
+        <h1>Task: Guess the model output (Scenes A/B/C/D)</h1>
+        <p>
+          For each photo, the model predicts one of four scenes.
+          Your job is to guess the model output for the given photo on the left.
+          <br><br>
+          To help you understand how the model makes its predictions,
+          for each scene, we show example photos for which the model predicts that scene.
+          <br>
+          Scroll right to see all 10 example photos.
+          <br><br>
+          Based on these examples, <b>choose the scene you think the model will predict for the given photo</b>.
+          <br>
+          We show the photo 4 times so you can easily compare it to the examples on the right.
+        </p>
+      </div>
+
+      <hr>
+
+      <div class='container-fluid'>
+
+        <div class='col-xs-3'>
+          <div class='container-fluid'>
+            <span style="font-size:18px; font-weight:bold">Photo</span>
+            <br>
+            <div id="scroll">
+              <div id='testimage1-container'></div>
+            </div>
+          </div>
+          <br><br>
+          <div class='container-fluid'>
+            <span style="font-size:18px; font-weight:bold">Photo (copy)</span>
+            <br>
+            <div id="scroll">
+              <div id='testimage2-container'></div>
+            </div>
+          </div>
+          <br><br>
+          <div class='container-fluid'>
+            <span style="font-size:18px; font-weight:bold">Photo (copy)</span>
+            <br>
+            <div id="scroll">
+              <div id='testimage3-container'></div>
+            </div>
+          </div>
+          <br><br>
+          <div class='container-fluid'>
+            <span style="font-size:18px; font-weight:bold">Photo (copy)</span>
+            <br>
+            <div id="scroll">
+              <div id='testimage4-container'></div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class='col-xs-9'>
+          <div class='container-fluid'>
+            <span style="font-size:18px; font-weight:bold">Examples predicted Scene A</span>
+            <br>
+            <div id="scroll">
+              <img src="https://drive.google.com/uc?export=view&id=13pGY24Uzjctqp7MTM9-QG0Wo4qQxKWrf" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=1658lWseBuHqo2wZblXDY88vztNr-fIwH" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=16kzi-Z3_VUqChxtZYEgO5ZYJPGoT6gpl" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=174mYKUPfnS0IeDbVV7jP8v0xod112TyH" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=17Yxkk9ak9lsBq7UNjTklcVy6cd2xuCZo" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=19K2-ch7vDHWcVwXn4W17nKe2ywcsCnw2" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=1B2xpRSDO5HtSQQH-glU8FmMda7rwrYUi" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=1BA6UsXBowk57d5QMLyR7vrQWnY2-V735" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=1BcYEsOQATJSO1eZy8u4sZb2PFToWIJaX" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=1D8euWZF4MU3FxWbJJW7qicvRk9cxC6AW" width=100%>
+            </div>
+          </div>
+
+          <br><br>
+
+          <div class='container-fluid'>
+            <span style="font-size:18px; font-weight:bold">Examples predicted Scene B</span>
+            <br>
+            <div id="scroll">
+              <img src="https://drive.google.com/uc?export=view&id=1-hW2-SwfM54smaZksEFsdjvX__3KpYqy" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=1-oMXPKrsvExi79Gs_2-wjOf1surfuzcs" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=1-Z6jagnootWq9KxZFR5C7k4YoKRek_TO" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=10vobGWR4hqFiq3TgmJ4EhQKJuJA_9MiV" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=1315ktsxPKXFEkSdDap9KWeseIYBuJgkD" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=15heeA3UnFUzFIEHMpCmS7AbXZq6JxCNA" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=15QlUU25sfpW8T9YrPqMw8YhrAP3mGuzj" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=16iNlayPXEutNz1qk5aLAbwhCVxKw9FjC" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=198pSV9ZfoQmeH6jjpGIBgx7TFN9WxfwW" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=1BIETRz55NKy2Fi3wIEEEcwb-nuGaz6-7" width=100%>
+            </div>
+          </div>
+
+          <br><br>
+
+          <div class='container-fluid'>
+            <span style="font-size:18px; font-weight:bold">Examples predicted Scene C</span>
+            <br>
+            <div id="scroll">
+              <img src="https://drive.google.com/uc?export=view&id=10JomMe9D2bJYJ3xHhiMfbDwdbrZ6Ak-6" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=13OFdrD7CxAMtjOMQv83sEP8_hqXdJO3o" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=14DQ871b63Jb-PgTeNALeoqo9e2g8QoWO" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=15tQWNO1Xly2pJrX6H2JR7PAEmJKWZrmz" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=19v-PbV7C5Wo6hmDKPgi9fFDfHy8c0bFq" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=1brp0bNUPxK7ZQ0o8c7dJkt4fxYxfyGnA" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=1c1_AHxln5669l8qzf7AuTC9WzxUb903K" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=1cbZISmobmrJZ_DNwtX5SfYOgCLWmCxo4" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=1Dgm8beJA7D1WA8puyR5VQ5GV4lhFCkCV" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=1EdwHMGICboR0QasEoVdSFIG-h0DMi5NR" width=100%>
+            </div>
+          </div>
+
+          <br><br>
+
+          <div class='container-fluid'>
+            <span style="font-size:18px; font-weight:bold">Examples predicted Scene D</span>
+            <br>
+            <div id="scroll">
+              <img src="https://drive.google.com/uc?export=view&id=1_nkAWmKhqWn0ojC95jruzdJ8GdJnDJCf" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=1_UiDiERl4oKKsEXM_NdCVPnZ9jM491qU" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=1_ZC-gdb4TiSEPmMKBhNBkzs4G3zCAUtx" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=1-WZ2Ynb4FWj3RBF-y6DNhObXXd4wIURd" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=10xAUafvG2cI8SNKgP5LnGR8NGPSyX0D7" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=11JmvVwh2_ZO7tqkOHhv7kB7ymgfc4ayn" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=11kfACA-Go-uMZaetdfp63WRhpc2Hx9U2" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=11Z6Mx3exVk4TOGQ4Mawp9nNEUjXH5ErD" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=13_vut8eu-vxkhicwoPR-JhbXswXhx8Y0" width=100%>
+              <img src="https://drive.google.com/uc?export=view&id=13B1pXwJSNkGjRQIqkDl9dJy6hB9dJtRU" width=100%>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <br>
+
+      <!-- Model output prediction -->
+      <div class='container-fluid'>
+        <h3>Q. Which scene class do you think the model predicts?</h3>
+        <form action="" method="post">
+          <input type="radio" style="height:18px; width:18px; vertical-align:top;" name="predictedclass" value="1"/>
+          <span style="font-size:18px; white-space:pre">Scene A  </span>
+          <input type="radio" style="height:18px; width:18px; vertical-align:top;" name="predictedclass" value="2"/>
+          <span style="font-size:18px; white-space:pre">Scene B  </span>
+          <input type="radio" style="height:18px; width:18px; vertical-align:top;" name="predictedclass" value="3"/>
+          <span style="font-size:18px; white-space:pre">Scene C  </span>
+          <input type="radio" style="height:18px; width:18px; vertical-align:top;" name="predictedclass" value="4"/>
+          <span style="font-size:18px; white-space:pre">Scene D  </span>
+        </form>
+      </div>
+
+      <br><hr>
+
+      <!-- Next photo -->
+      <div class='container-fluid'>
+        <h3>Click &#34;Next Photo&#34; after selecting the rows and answering the question.</h3>
+      </div>
+      <div class='container-fluid' id='button-div'>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id='counter'><span class='counter-top'></span> / <span class='counter-bottom'></span></span>
+        <br>
+        <button id='next_btn' style='background-color:#FFAC1C; border:none;' class='btn btn-lg btn-primary' onclick="record();" disabled>Next Photo</button>
+      </div>
+
+      <br><hr>
+
+      <!-- Next page -->
+      <div class='container-fluid'>
+        <h3>Click &#34;Next Page&#34; after selecting answers for all 10 photos.</h3>
+      </div>
+      <br>
+      <div class='container-fluid' id='button-div'>
+        <button disabled class='btn btn-lg btn-primary' id='next_task2task2' onclick="record();pg_task2task2();">Next Page</button>
+      </div>
+
+      <br><br><br>
+
+    </div>
+
+  </body>
+</html>

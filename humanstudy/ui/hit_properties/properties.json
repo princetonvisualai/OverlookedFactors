@@ -1,0 +1,13 @@
+{
+  "Title": "Examine photos and guess what an AI model would predict",
+  "Description": "A research study on evaluating explanations for computer vision models",
+  "Keywords": "interpretability, evaluation, artificial intelligence, machine learning, computer vision",
+  "Reward": 2.00,
+  "LifetimeInSeconds": 604800,
+  "AssignmentDurationInSeconds": 3600,
+  "FrameHeight": 20000,
+  "MaxAssignments": 1,
+  "PercentApproved": 98,
+  "HitsApproved": 1000,
+  "Country": ["US"]
+}

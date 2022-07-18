@@ -1,0 +1,326 @@
+<html>
+  <head>
+    <title>Evaluating interpretability</title>
+    <!-- simpleamt depends on these libraries -->
+    <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/json3/3.3.2/json3.min.js'></script>
+    <!-- end of required libraries -->
+    <script src='//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js'></script>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js'></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      #text-area {
+        margin: 10px 0;
+        font-size: 24pt;
+      }
+      #button-div {
+        margin-bottom: 10px;
+      }
+      #counter {
+        margin: 0 10px;
+        font-size: 20pt;
+        font-weight: bold;
+      }
+      p {
+        font-size: 18px;
+      }
+      hr {
+        display: block;
+        height: 1px;
+        border: 0;
+        border-top: 1px solid #ccc;
+        margin: 1em 0;
+        padding: 0;
+      }
+      li {
+        font-size: 18px;
+      }
+      .row_special {
+        display: grid;
+        grid-auto-flow: column;
+        gap: 10%;
+      }
+
+      .col_special {
+        display: grid;
+        grid-auto-flow: row;
+        align-items: center;
+      }
+      .double {
+        zoom: 1.5;
+        transform: scale(2);
+        -ms-transform: scale(2);
+        -webkit-transform: scale(2);
+        -o-transform: scale(2);
+        -moz-transform: scale(2);
+        transform-origin: 0 0;
+        -ms-transform-origin: 0 0;
+        -webkit-transform-origin: 0 0;
+        -o-transform-origin: 0 0;
+        -moz-transform-origin: 0 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class='container-fluid' id='part_task' style="display: none;">
+
+      <div class='container-fluid'>
+        <h1>Task: Recognize concepts and guess the model output</h1>
+        <p>
+          We have a model that predicts one of four scenes (A, B, C, D) for a photo.
+          <br>
+          We also have explanations for how the model decides to predict each scene.
+          <br><br>
+          In this task, we ask you to use these explanations to guess which scene the model predicts.
+          <br>
+          You will do so by first <b>checking all concepts you think are present in the photo</b>,
+          <br>
+          then <b>choosing the scene you think the model predicts</b> based on the explanation scores.
+          <br><br>
+          Note that the explanation scores changes based on your concept selections, not the model's.
+          <br>
+          We don't know what the model will predict for this photo, we're trying to guess that!
+        </p>
+      </div>
+
+      <hr>
+
+      <div class='container-fluid'>
+
+        <!-- Photo -->
+        <div class='col-xs-3'>
+          <div id='testimage-container'></div>
+        </div>
+
+        <!-- Concepts -->
+        <div id='g1_checkboxes' class='col-xs-3'>
+          <span style="font-size:18px; font-weight:bold">Concepts</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_sky" value="g1_sky" />
+          <span class="mono">sky</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_person" value="g1_person" />
+          <span class="mono">person</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_road" value="g1_road" />
+          <span class="mono">road</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_grass" value="g1_grass" />
+          <span class="mono">grass</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_plant" value="g1_plant" />
+          <span class="mono">plant</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_car" value="g1_car" />
+          <span class="mono">car</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_sidewalk" value="g1_sidewalk" />
+          <span class="mono">sidewalk</span>
+          <br>
+          <input type="checkbox" class="basic" name="g1_skyscraper" value="g1_skyscraper" />
+          <span class="mono">skyscraper</span>
+        </div>
+
+      </div>
+
+      <br><br>
+
+      <div class='container-fluid'>
+
+        <!-- Explanation 1 -->
+        <div class='col-xs-3'>
+          <span style="font-size:18px; font-weight:bold">Explanation for Scene A</span>
+          <br>
+          <span class="mono-bold">= </span>
+          <span class="g1_finalscore1" style="font-size:18px; color:blue; font-weight:bold; font-family:monospace; white-space:pre"></span>
+          <br>
+          <span class="mono-bold-no">= </span>
+          <span class="mono-red">- 0.12 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_sidewalk" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (sidewalk)</span>
+          <br>
+          <span class="mono-green">  + 0.00</span>
+        </div>
+
+        <!-- Explanation 2 -->
+        <div class='col-xs-3'>
+          <span style="font-size:18px; font-weight:bold">Explanation for Scene B</span>
+          <br>
+          <span class="mono-bold">= </span>
+          <span class="g1_finalscore2" style="font-size:18px; color:blue; font-weight:bold; font-family:monospace; white-space:pre"></span>
+          <br>
+          <span class="mono-bold-no">= </span>
+          <span class="mono-red">- 1.44 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_skyscraper" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (skyscraper)</span>
+          <br>
+          <span class="mono-red">  - 1.03 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_sky" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (sky)</span>
+          <br>
+          <span class="mono-green">  + 0.69 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_grass" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (grass)</span>
+          <br>
+          <span class="mono-red">  - 0.23 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_car" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (car)</span>
+          <br>
+          <span class="mono-green">  + 0.23 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_plant" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (plant)</span>
+          <br>
+          <span class="mono-green">  + 1.04</span>
+        </div>
+
+        <!-- Explanation 3 -->
+        <div class='col-xs-3'>
+          <span style="font-size:18px; font-weight:bold">Explanation for Scene C</span>
+          <br>
+          <span class="mono-bold">= </span>
+          <span class="g1_finalscore3" style="font-size:18px; color:blue; font-weight:bold; font-family:monospace; white-space:pre"></span>
+          <br>
+          <span class="mono-bold-no">= </span>
+          <span class="mono-green">+ 1.54 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_skyscraper" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (skyscraper)</span>
+          <br>
+          <span class="mono-red">  - 1.11 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_car" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (car)</span>
+          <br>
+          <span class="mono-red">  - 1.04 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_road" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (road)</span>
+          <br>
+          <span class="mono-red">  - 1.00 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_sidewalk" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (sidewalk)</span>
+          <br>
+          <span class="mono-red">  - 0.75 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_person" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (person)</span>
+          <br>
+          <span class="mono-green">  + 1.04</span>
+        </div>
+
+        <!-- Explanation 4 -->
+        <div class='col-xs-3'>
+          <span style="font-size:18px; font-weight:bold">Explanation for Scene D</span>
+          <br>
+          <span class="mono-bold">= </span>
+          <span class="g1_finalscore4" style="font-size:18px; color:blue; font-weight:bold; font-family:monospace; white-space:pre"></span>
+          <br>
+          <span class="mono-bold-no">= </span>
+          <span class="mono-red">- 1.90 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_skyscraper" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (skyscraper)</span>
+          <br>
+          <span class="mono-green">  + 0.27 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_car" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (car)</span>
+          <br>
+          <span class="mono-red">  - 0.19 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_grass" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (grass)</span>
+          <br>
+          <span class="mono-green">  + 0.04 </span>
+          <span class="mono">x </span>
+          <span class="g1_score_sidewalk" style="font-size:18px; font-family:monospace; white-space:pre"></span>
+          <span class="mono"> (sidewalk)</span>
+          <br>
+          <span class="mono-green">  + 0.61</span>
+        </div>
+
+      </div>
+
+
+      <!-- Model output prediction -->
+      <div class='container-fluid'>
+        <h3>Q. Which scene class do you think the model predicts?</h3>
+        <form action="" method="post">
+          <input type="radio" class="basic" name="predictedclass" value="1"/>
+          <span style="font-size:18px; white-space:pre">Scene A  </span>
+          <input type="radio" class="basic" name="predictedclass" value="2"/>
+          <span style="font-size:18px; white-space:pre">Scene B  </span>
+          <input type="radio" class="basic" name="predictedclass" value="3"/>
+          <span style="font-size:18px; white-space:pre">Scene C  </span>
+          <input type="radio" class="basic" name="predictedclass" value="4"/>
+          <span style="font-size:18px; white-space:pre">Scene D  </span>
+        </form>
+      </div>
+
+      <br><hr>
+
+      <!-- Next photo -->
+      <div class='container-fluid'>
+        <h3>Click &#34;Record&#34; then &#34;Next Photo&#34; after selecting your answer.</h3>
+      </div>
+      <div class='container-fluid' id='button-div'>
+        <input type='submit' class='btn btn-lg btn-success' id='task1_submit' disabled onclick="task1_submit();" value='Record'/>
+        <div class="alert alert-danger" id='all' style="display: none; ">
+          Are you sure you want to select all concepts?
+          Please try to be as accurate as possible in the task.
+        </div>
+        <div class="alert alert-danger" id='none' style="display: none; ">
+          Are you sure you want to select 0 concepts?
+          Please try to be as accurate as possible in the task.
+        </div>
+      </div>
+      <div class='container-fluid' id='button-div'>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id='counter'><span class='counter-top'></span> / <span class='counter-bottom'></span></span>
+        <br>
+        <button id='next_btn' style='background-color:#FFAC1C; border:none;' class='btn btn-lg btn-primary' onclick="record();" disabled>Next Photo</button>
+      </div>
+
+      <br><hr>
+
+
+      <!-- Next page -->
+      <div class='container-fluid'>
+        <h3>Click &#34;Next Page&#34; after selecting answers for all photos.</h3>
+      </div>
+      <br>
+      <div class='container-fluid' id='button-div'>
+        <button disabled class='btn btn-lg btn-primary' id='next_task2task2' onclick="record();pg_task2task2();">Next Page</button>
+      </div>
+
+      <br><hr>
+
+      <!--Method description-->
+      <div class='container-fluid'>
+        <h3>Click below to open or close the model and explanation description.</h3>
+      </div>
+      <div class='container-fluid' id='button-div'>
+        <button class='btn btn-lg btn-primary' style="background-color:#bb62d1; border:none;"
+        id='display_method' onclick="pg_method();">Model and explanation description</button>
+      </div>
+      <div class='container-fluid' id="part_method" style="display: none;">
+        <div class='col-xs-12'>
+          {% include "hit_templates/intro_8_16_32concept.html" %}
+          <br><br>
+        </div>
+        <br><br>
+      </div>
+
+      <br>
+
+    </div>
+
+  </body>
+</html>
