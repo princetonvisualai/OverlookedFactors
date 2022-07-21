@@ -1,4 +1,4 @@
-This is the code to reproduce results from "Overlooked factors in concept-based explanations: Dataset choice, concept salience, and human capability"
+This is the code to reproduce results from "Overlooked factors in concept-based explanations: Dataset choice, concept salience, and human capability" (https://arxiv.org/abs/2207.09615)
 
 To start, download the Broden dataset using scripts from https://github.com/CSAILVision/NetDissect-Lite and download the CUB dataset (http://www.vision.caltech.edu/datasets/cub_200_2011/)
 
