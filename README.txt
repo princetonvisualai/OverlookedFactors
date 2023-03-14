@@ -1,6 +1,6 @@
-This is the code to reproduce results from "Overlooked factors in concept-based explanations: Dataset choice, concept salience, and human capability" (https://arxiv.org/abs/2207.09615)
+This is the code to reproduce results from "Overlooked Factors in Concept-based Explanations: Dataset Choice, Concept Learnability, and Human Capability" (to appear in CVPR 2023; see https://arxiv.org/abs/2207.09615 for a preprint)
 
-To start, download the Broden dataset using scripts from https://github.com/CSAILVision/NetDissect-Lite and download the CUB dataset (http://www.vision.caltech.edu/datasets/cub_200_2011/)
+To start, download the Broden dataset using scripts from https://github.com/CSAILVision/NetDissect-Lite and download the CUB dataset from http://www.vision.caltech.edu/datasets/cub_200_2011/
 
 Use data_processing.py from https://github.com/yewsiang/ConceptBottleneck/tree/master/CUB to get train/val/test splits for the CUB dataset. 
 
